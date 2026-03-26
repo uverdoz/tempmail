@@ -27,6 +27,19 @@ export async function POST(req) {
     }
 }
 
+export async function POST(req) {
+    try {
+        const text = await req.text();
+
+        console.log("RAW BODY:", text);
+
+        return new Response("ok", { status: 200 });
+    } catch (e) {
+        console.log("ERROR:", e);
+        return new Response("error", { status: 500 });
+    }
+}
+
 export async function GET() {
     return NextResponse.json(global.messages);
 }
