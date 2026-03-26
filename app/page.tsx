@@ -1,65 +1,536 @@
-import Image from "next/image";
+"use client";
+import { useState, useEffect } from "react";
+import { FiCopy, FiRefreshCw } from "react-icons/fi";
 
 export default function Home() {
+
+  // ================= STATE =================
+  const [email, setEmail] = useState<string>("");
+  const [token, setToken] = useState<string>("");
+  const [messages, setMessages] = useState<any[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+  const [spinning, setSpinning] = useState(false);
+  const [domains, setDomains] = useState<string[]>([]);
+  const [selectedDomain, setSelectedDomain] = useState<string>("");
+  const [service, setService] = useState<"mailtm" | "1secmail" | "custom">("mailtm");
+
+  // ================= CREATE EMAIL =================
+  const createEmail = async () => {
+    try {
+      if (service === "mailtm") {
+        const domainRes = await fetch("https://api.mail.tm/domains");
+        const domainData = await domainRes.json();
+
+        const domain = selectedDomain || domainData["hydra:member"][0].domain;
+        const address = `${Math.random().toString(36).substring(2, 10)}@${domain}`;
+        const password = "12345678";
+
+        await fetch("https://api.mail.tm/accounts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, password }),
+        });
+
+        const tokenRes = await fetch("https://api.mail.tm/token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address, password }),
+        });
+
+        const tokenData = await tokenRes.json();
+
+        setEmail(address);
+        setToken(tokenData.token);
+      }
+
+      if (service === "1secmail") {
+        const login = Math.random().toString(36).substring(2, 10);
+        const domain = selectedDomain || "1secmail.com";
+        setEmail(`${login}@${domain}`);
+        setToken("");
+      }
+
+      // 🔥 НОВОЕ (ТВОЙ СЕРВИС)
+      if (service === "custom") {
+        const login = Math.random().toString(36).substring(2, 10);
+        const domain = "mail.tempfastmail.site"; // твой домен в mailgun
+        setEmail(`${login}@${domain}`);
+        setToken("");
+      }
+
+      setMessages([]);
+      setSelectedMessage(null);
+
+    } catch {
+      console.log("create email error");
+    }
+  };
+
+  // ================= LOAD DOMAINS =================
+  const loadDomains = async () => {
+    try {
+      if (service === "mailtm") {
+        const res = await fetch("https://api.mail.tm/domains");
+        const data = await res.json();
+
+        const list = data["hydra:member"].map((d: any) => d.domain);
+
+        setDomains(list);
+        setSelectedDomain(list[0]);
+      }
+
+      if (service === "1secmail") {
+        const list = [
+          "1secmail.com",
+          "1secmail.net",
+          "1secmail.org",
+        ];
+
+        setDomains(list);
+        setSelectedDomain(list[0]);
+      }
+
+      // 🔥 НОВОЕ
+      if (service === "custom") {
+        const list = [
+          "mail.tempfastmail.site"
+        ];
+
+        setDomains(list);
+        setSelectedDomain(list[0]);
+      }
+
+    } catch {
+      console.log("domains error");
+    }
+  };
+
+  // ================= GET MESSAGES =================
+  const getMessages = async () => {
+    if (!email) return;
+
+    try {
+      if (service === "mailtm") {
+        if (!token) return;
+
+        const res = await fetch("https://api.mail.tm/messages", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setMessages(data["hydra:member"] || []);
+      }
+
+      if (service === "1secmail") {
+        const [login, domain] = email.split("@");
+
+        const res = await fetch(
+          `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`
+        );
+
+        const data = await res.json();
+        setMessages(data || []);
+      }
+
+      // 🔥 НОВОЕ
+      if (service === "custom") {
+        const res = await fetch("/api/mailgun");
+        const data = await res.json();
+
+        // 🔥 ВОТ ЭТА СТРОКА — КЛЮЧЕВАЯ
+        const filtered = data.filter((m: any) =>
+          m.to?.includes(email)
+        );
+
+        setMessages(filtered);
+      }
+
+    } catch {
+      console.log("get messages error");
+    }
+  };
+
+  // ================= OPEN MESSAGE =================
+  const openMessage = async (id: any) => {
+    try {
+      if (service === "mailtm") {
+        if (!token) return;
+
+        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        setSelectedMessage(data);
+      }
+
+      if (service === "1secmail") {
+        const [login, domain] = email.split("@");
+
+        const res = await fetch(
+          `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`
+        );
+
+        const data = await res.json();
+        setSelectedMessage(data);
+      }
+
+      // 🔥 НОВОЕ
+      if (service === "custom") {
+        const msg = messages.find((m) => m.id === id);
+        setSelectedMessage(msg);
+      }
+
+    } catch {
+      console.log("open message error");
+    }
+  };
+
+  // ================= AUTO =================
+  useEffect(() => {
+    loadDomains();
+  }, [service]);
+
+  useEffect(() => {
+    if (service === "mailtm" && !token) return;
+    if (!email) return;
+
+    getMessages();
+    const interval = setInterval(getMessages, 5000);
+
+    return () => clearInterval(interval);
+  }, [token, email, service]);
+
+  // ================= UI =================
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div style={wrapper}>
+
+      <div style={container}>
+
+        <h1 style={logo}>
+          TempFastMail
+        </h1>
+
+        <div style={emailBlock}>
+
+          <div style={row}>
+
+            <button
+              onClick={createEmail}
+              style={newMailBtn}
+              onMouseEnter={hoverMove}
+              onMouseLeave={hoverReset}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              Новая почта
+            </button>
+
+            <div style={emailStyle}>
+              {email}
+            </div>
+
+            {/* 🔥 СЕЛЕКТОР СЕРВИСА */}
+            <select
+              value={service}
+              onChange={(e) => setService(e.target.value as any)}
+              style={{
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: 8,
+                padding: "13px 3px"
+              }}
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <option value="mailtm">mail.tm</option>
+              <option value="1secmail">1secmail</option>
+              <option value="custom">TempFastMail</option>
+            </select>
+
+            {/* ДОМЕНЫ */}
+            <select
+              value={selectedDomain}
+              onChange={(e) => setSelectedDomain(e.target.value)}
+              style={{
+                background: "#111",
+                color: "white",
+                border: "1px solid #333",
+                borderRadius: 8,
+                padding: "13px 3px"
+              }}
+            >
+              {domains.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(email);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500);
+              }}
+              style={iconBtn}
+              onMouseEnter={hoverMove}
+              onMouseLeave={hoverReset}
+            >
+              <FiCopy />
+            </button>
+
+            <button
+              onClick={() => {
+                setSpinning(true);
+                getMessages();
+                setTimeout(() => setSpinning(false), 700);
+              }}
+              style={iconBtn}
+              onMouseEnter={hoverGlow}
+              onMouseLeave={hoverReset}
+            >
+              <FiRefreshCw
+                style={{
+                  animation: spinning ? "spin 0.7s linear" : "none"
+                }}
+              />
+            </button>
+
+          </div>
+
+          {copied && <div style={toast}>Скопировано</div>}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div style={grid}>
+
+          <div style={list}>
+            {messages.length === 0 && (
+              <p style={{ color: "#666" }}>Нет писем</p>
+            )}
+
+            {messages.map((msg, index) => {
+              const active = selectedMessage?.id === msg.id;
+
+              return (
+                <div
+                  key={msg.id}
+                  onClick={() => openMessage(msg.id)}
+                  style={{
+                    padding: 10,
+                    borderRadius: 10,
+                    marginBottom: 10,
+                    cursor: "pointer",
+                    background: active ? "#141414" : "transparent",
+                    boxShadow: active
+                      ? "0 0 25px rgba(255,80,80,0.25)"
+                      : "none",
+                    border: active ? "1px solid rgba(255,80,80,0.4)" : "1px solid #222",
+                    transition: "0.2s",
+                    animation: "fadeInUp 0.3s ease forwards",
+                    animationDelay: `${index * 0.03}s`,
+                    opacity: 0,
+                  }}
+                >
+                  <b style={{ fontSize: 13 }}>
+                    {typeof msg.from === "object"
+                      ? msg.from?.address
+                      : msg.from}
+                  </b>
+
+                  <p style={subject}>
+                    {msg.subject}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div style={messageBox}>
+            {!selectedMessage ? (
+              <p style={{ color: "#666" }}>Выбери письмо</p>
+            ) : (
+              <>
+                <h3>{selectedMessage.subject}</h3>
+
+                <p style={{ color: "#888" }}>
+                  {typeof selectedMessage.from === "object"
+                    ? selectedMessage.from?.address
+                    : selectedMessage.from}
+                </p>
+
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      selectedMessage.html ||
+                      selectedMessage.text ||
+                      "Пусто"
+                  }}
+                />
+              </>
+            )}
+          </div>
+
         </div>
-      </main>
+
+      </div>
+
+      <style jsx global>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes bgMove {
+          0% { background-position: 0% 0%, 100% 100%; }
+          50% { background-position: 20% 10%, 80% 90%; }
+          100% { background-position: 0% 0%, 100% 100%; }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+
     </div>
   );
 }
+
+// ================= STYLES =================
+const wrapper: React.CSSProperties = {
+  minHeight: "100vh",
+  animation: "bgMove 10s ease infinite",
+  background: `
+    radial-gradient(circle at 20% 10%, rgba(255, 0, 0, 0.06), transparent 70%),
+    radial-gradient(circle at 80% 90%, rgba(255, 0, 0, 0.04), transparent 0%),
+    #050505
+  `,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  padding: 20,
+  color: "white",
+  fontFamily: "Arial"
+};
+
+const container: React.CSSProperties = {
+  width: "100%",
+  maxWidth: 1000
+};
+
+const logo: React.CSSProperties = {
+  fontSize: 45,
+  fontWeight: 700,
+  textAlign: "center",
+  marginBottom: 30,
+  background: "linear-gradient(90deg, #fff, #aaa)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+};
+
+const emailBlock: React.CSSProperties = {
+  background: "#0d0d0d",
+  border: "1px solid #222",
+  borderRadius: 16,
+  padding: 20,
+  marginBottom: 25,
+  position: "relative"
+};
+
+const row: React.CSSProperties = {
+  display: "flex",
+  gap: 12,
+  alignItems: "center"
+};
+
+const emailStyle: React.CSSProperties = {
+  flex: 1,
+  background: "#111",
+  padding: "14px 16px",
+  borderRadius: 12,
+  border: "1px solid #222"
+};
+
+const newMailBtn: React.CSSProperties = {
+  padding: "10px 14px",
+  borderRadius: 10,
+  border: "1px solid #333",
+  background: "#151515",
+  color: "white",
+  cursor: "pointer",
+};
+
+const iconBtn: React.CSSProperties = {
+  width: 45,
+  height: 45,
+  borderRadius: 12,
+  border: "1px solid #333",
+  background: "#111",
+  color: "white",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+};
+
+const subject: React.CSSProperties = {
+  fontSize: 13,
+  color: "#aaa",
+  marginTop: 5
+};
+
+const toast: React.CSSProperties = {
+  position: "absolute",
+  top: -30,
+  right: 20,
+  background: "#111",
+  border: "1px solid #333",
+  padding: "6px 10px",
+  borderRadius: 8,
+  fontSize: 12
+};
+
+const grid: React.CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "1fr 2fr",
+  gap: 20
+};
+
+const list: React.CSSProperties = {
+  background: "#0d0d0d",
+  border: "1px solid #222",
+  borderRadius: 16,
+  padding: 15,
+  height: 400,
+  overflowY: "auto",
+};
+
+const messageBox: React.CSSProperties = {
+  background: "#0d0d0d",
+  border: "1px solid #222",
+  borderRadius: 16,
+  padding: 20,
+  height: 400,
+  overflowY: "auto",
+};
+
+const hoverMove = (e: any) => {
+  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.2)";
+  e.currentTarget.style.transform = "translateY(-2px)";
+};
+
+const hoverGlow = (e: any) => {
+  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.25)";
+};
+
+const hoverReset = (e: any) => {
+  e.currentTarget.style.boxShadow = "none";
+  e.currentTarget.style.transform = "translateY(0)";
+};
