@@ -5,33 +5,9 @@ global.messages = global.messages || [];
 export const dynamic = "force-dynamic";
 export async function POST(req) {
     try {
-        const formData = await req.formData();
+        const body = await req.text();
 
-        const message = {
-            id: Date.now(),
-            from: formData.get("from"),
-            to: formData.get("recipient"),
-            subject: formData.get("subject"),
-            text: formData.get("body-plain"),
-            html: formData.get("body-html"),
-        };
-
-        global.messages.unshift(message);
-
-        console.log("NEW MAIL:", message); // 👈 важно
-
-        return NextResponse.json({ ok: true });
-    } catch (e) {
-        console.log("ERROR:", e);
-        return NextResponse.json({ error: true }, { status: 500 });
-    }
-}
-
-export async function POST(req) {
-    try {
-        const text = await req.text();
-
-        console.log("RAW BODY:", text);
+        console.log("RAW BODY:", body);
 
         return new Response("ok", { status: 200 });
     } catch (e) {
