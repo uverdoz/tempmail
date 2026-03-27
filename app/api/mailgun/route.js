@@ -1,6 +1,4 @@
-import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
+global.messages = global.messages || [];
 
 export async function POST(req) {
     try {
@@ -13,13 +11,12 @@ export async function POST(req) {
 
         console.log("MAIL:", obj);
 
+        // 💥 ВОТ ЭТО ДОБАВЬ
+        global.messages.unshift(obj);
+
         return NextResponse.json({ success: true });
     } catch (e) {
         console.error(e);
-        return new Response("error", { status: 200 });
+        return new Response("ok", { status: 200 });
     }
-}
-
-export async function GET() {
-    return NextResponse.json({ ok: true });
 }
