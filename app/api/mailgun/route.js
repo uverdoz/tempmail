@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 global.messages = global.messages || [];
 
 export async function POST(req) {
@@ -11,7 +13,6 @@ export async function POST(req) {
 
         console.log("MAIL:", obj);
 
-        // 💥 ВОТ ЭТО ДОБАВЬ
         global.messages.unshift(obj);
 
         return NextResponse.json({ success: true });
@@ -19,4 +20,8 @@ export async function POST(req) {
         console.error(e);
         return new Response("ok", { status: 200 });
     }
+}
+
+export async function GET() {
+    return NextResponse.json(global.messages);
 }
