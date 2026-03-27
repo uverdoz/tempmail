@@ -1,16 +1,25 @@
 import { NextResponse } from "next/server";
 
-// глобальное хранилище
-global.messages = global.messages || [];
 export const dynamic = "force-dynamic";
+
 export async function POST(req) {
-    const data = await req.formData();
+    try {
+        const data = await req.formData();
 
-    console.log("MAIL:", data);
+        const obj = {};
+        for (const [key, value] of data.entries()) {
+            obj[key] = value;
+        }
 
-    return new Response("ok");
+        console.log("MAIL:", obj);
+
+        return NextResponse.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        return new Response("error", { status: 200 });
+    }
 }
 
 export async function GET() {
-    return NextResponse.json(global.messages);
+    return NextResponse.json({ ok: true });
 }
