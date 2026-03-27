@@ -5,27 +5,42 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-export const config = {
-    api: {
-        bodyParser: false,
-    },
-};
-
 export async function POST(req) {
-    const data = await req.formData();
+    try {
+        // 👉 читаем raw body (ВАЖНО для Mailgun)
+        const body = await req.text();
 
-    const obj = {};
-    for (const [key, value] of data.entries()) {
-        obj[key] = value;
+        console.log("RAW BODY:", body);
+
+        // 👉 парсим x-www-form-urlencoded
+        const params = new URLSearchParams(body);
+        const obj = {};
+
+        for (const [key, value] of params.entries()) {
+            obj[key] = value;
+        }
+
+        console.log("PARSED:", obj);
+
+        // 👉 сохраняем в Redis
+        await redis.lpush("emails", JSON.stringify(obj));
+
+        return Response.json({ success: true });
+
+    } catch (e) {
+        console.error("ERROR:", e);
+        return Response.json({ success: false });
     }
-
-    await redis.lpush("emails", JSON.stringify(obj));
-
-    return Response.json({ success: true });
 }
 
 export async function GET() {
-    const emails = await redis.lrange("emails", 0, 20);
+    try {
+        const emails = await redis.lrange("emails", 0, 20);
 
-    return Response.json(emails.map(e => JSON.parse(e)));
+        return Response.json(emails.map(e => JSON.parse(e)));
+
+    } catch (e) {
+        console.error("GET ERROR:", e);
+        return Response.json([]);
+    }
 }
