@@ -8,9 +8,17 @@ const redis = new Redis({
 // ================= POST =================
 export async function POST(req) {
     try {
-        const body = await req.json();
+        const formData = await req.formData();
 
-        await redis.lpush("emails", JSON.stringify(body));
+        const email = {
+            from: formData.get("from"),
+            to: formData.get("to"),
+            subject: formData.get("subject"),
+            text: formData.get("body-plain"),
+            html: formData.get("body-html"),
+        };
+
+        await redis.lpush("emails", JSON.stringify(email));
 
         return Response.json({ success: true });
     } catch (e) {
