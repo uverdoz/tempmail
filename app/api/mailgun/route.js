@@ -1,10 +1,11 @@
-import { Redis } from "@upstash/redis";
-
+import { Redis } from '@upstash/redis'
 const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+    url: 'https://tolerant-perch-85744.upstash.io',
+    token: 'gQAAAAAAAU7wAAIncDIzMzE4M2FlMjc2Y2I0Y2VhYWY2Yzg0M2ExYzY4YjU0YXAyODU3NDQ',
+})
 
+await redis.set("foo", "bar");
+await redis.get("foo");
 // ================= POST =================
 export async function POST(req) {
     try {
@@ -31,3 +32,4 @@ export async function GET() {
         return Response.json([]);
     }
 }
+
