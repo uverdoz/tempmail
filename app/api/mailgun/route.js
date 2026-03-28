@@ -7,19 +7,20 @@ const redis = new Redis({
 });
 
 // POST — принимает письмо от Mailgun
+export const runtime = "nodejs";
+
 export async function POST(req) {
+    console.log("🔥 HIT POST"); // ✅ ВНУТРИ функции
+
     try {
         const text = await req.text();
 
-        // вытаскиваем subject
         const subjectMatch = text.match(/Subject: (.*)/);
         const subject = subjectMatch ? subjectMatch[1] : "No subject";
 
-        // вытаскиваем from
         const fromMatch = text.match(/From: (.*)/);
         const from = fromMatch ? fromMatch[1] : "Unknown";
 
-        // вытаскиваем ссылку (самое важное для тебя)
         const linkMatch = text.match(/https:\/\/[^\s"]+/);
         const link = linkMatch ? linkMatch[0] : null;
 
