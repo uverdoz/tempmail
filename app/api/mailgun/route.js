@@ -9,17 +9,28 @@ const redis = new Redis({
 // POST — принимает письмо от Mailgun
 export async function POST(req) {
     try {
-        const data = await req.formData();
+        const text = await req.text();
+
+        // вытаскиваем subject
+        const subjectMatch = text.match(/Subject: (.*)/);
+        const subject = subjectMatch ? subjectMatch[1] : "No subject";
+
+        // вытаскиваем from
+        const fromMatch = text.match(/From: (.*)/);
+        const from = fromMatch ? fromMatch[1] : "Unknown";
+
+        // вытаскиваем ссылку (самое важное для тебя)
+        const linkMatch = text.match(/https:\/\/[^\s"]+/);
+        const link = linkMatch ? linkMatch[0] : null;
 
         const email = {
-            from: data.get("from"),
-            to: data.get("recipient"),
-            subject: data.get("subject"),
-            text: data.get("body-plain"),
-            html: data.get("body-html"),
+            from,
+            subject,
+            link,
+            raw: text.slice(0, 500),
         };
 
-        console.log("MAIL:", email);
+        console.log("PARSED:", email);
 
         await redis.lpush("emails", JSON.stringify(email));
 
