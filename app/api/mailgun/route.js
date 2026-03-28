@@ -1,12 +1,12 @@
-import { Redis } from '@upstash/redis'
+import { Redis } from "@upstash/redis";
+
 const redis = new Redis({
     url: 'https://tolerant-perch-85744.upstash.io',
     token: 'gQAAAAAAAU7wAAIncDIzMzE4M2FlMjc2Y2I0Y2VhYWY2Yzg0M2ExYzY4YjU0YXAyODU3NDQ',
-})
 
-await redis.set("foo", "bar");
-await redis.get("foo");
-// ================= POST =================
+});
+
+// POST — принимает письмо от Mailgun
 export async function POST(req) {
     try {
         const data = await req.formData();
@@ -30,7 +30,7 @@ export async function POST(req) {
     }
 }
 
-// ================= GET =================
+// GET — отдаёт письма фронту
 export async function GET() {
     try {
         const emails = await redis.lrange("emails", 0, 20);
