@@ -5,18 +5,12 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+// ================= POST =================
 export async function POST(req) {
     try {
-        const body = await req.text();
+        const body = await req.json();
 
-        const params = new URLSearchParams(body);
-        const obj = {};
-
-        for (const [key, value] of params.entries()) {
-            obj[key] = value;
-        }
-
-        await redis.lpush("emails", JSON.stringify(obj));
+        await redis.lpush("emails", JSON.stringify(body));
 
         return Response.json({ success: true });
     } catch (e) {
@@ -25,11 +19,13 @@ export async function POST(req) {
     }
 }
 
+// ================= GET =================
 export async function GET() {
     try {
         const emails = await redis.lrange("emails", 0, 20);
-        return Response.json(emails.map(e => JSON.parse(e)));
+        return Response.json(emails.map((e) => JSON.parse(e)));
     } catch (e) {
+        console.error(e);
         return Response.json([]);
     }
 }
