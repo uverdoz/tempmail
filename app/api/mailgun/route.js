@@ -10,11 +10,9 @@ export async function POST(req) {
     try {
         const text = await req.text();
 
-        const email = {
-            raw: text,
-        };
+        console.log("MAIL RAW:", text.slice(0, 200));
 
-        await redis.lpush("emails", JSON.stringify(email));
+        await redis.lpush("emails", text);
 
         return Response.json({ success: true });
     } catch (e) {
@@ -27,7 +25,7 @@ export async function POST(req) {
 export async function GET() {
     try {
         const emails = await redis.lrange("emails", 0, 20);
-        return Response.json(emails.map((e) => JSON.parse(e)));
+        return Response.json(emails);
     } catch (e) {
         console.error(e);
         return Response.json([]);
