@@ -141,9 +141,10 @@ export default function Home() {
         const data = await res.json();
 
         // 🔥 ВОТ ЭТА СТРОКА — КЛЮЧЕВАЯ
-        const filtered = data.filter((m: any) =>
-          m.to?.includes(email)
-        );
+        const filtered = data.filter((m: any) => {
+          const to = m?.message?.headers?.to || "";
+          return to.includes(email);
+        });
 
         setMessages(filtered);
       }
