@@ -90,7 +90,7 @@ export default function Home() {
         setSelectedDomain(list[0]);
       }
 
-      // 🔥 НОВОЕ
+      // ✅ MAILGUN
       if (service === "custom") {
         const list = [
           "mail.tempfastmail.site"
@@ -136,30 +136,23 @@ export default function Home() {
         return;
       }
 
-      // 🔥 ТВОЙ MAILGUN
+      // 🔥 MAILGUN
       if (service === "custom") {
         const res = await fetch("/api/mailgun");
         const data = await res.json();
 
-        console.log("MAILGUN RAW:", data);
+        console.log("📥 MAILGUN RAW:", data);
+        console.log("📧 CURRENT EMAIL:", email);
 
-        // ✅ нормальный фильтр (работает всегда)
+        // ✅ ФИКС ФИЛЬТРА (главное)
         const filtered = data.filter((m: any) => {
-          const to = m.to;
-          if (!to) return false;
+          if (!m.to) return false;
 
-          if (Array.isArray(to)) {
-            return to.includes(email);
-          }
-
-          if (typeof to === "string") {
-            return to.includes(email);
-          }
-
-          return false;
+          return m.to.toLowerCase().includes(email.toLowerCase());
         });
 
-        // ✅ нормальный id
+        console.log("✅ FILTERED:", filtered);
+
         const messagesWithId = filtered.map((m: any, i: number) => ({
           ...m,
           id: m.id || `${i}_${Date.now()}`

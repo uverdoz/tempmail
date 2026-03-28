@@ -1,55 +1,66 @@
 import { Redis } from "@upstash/redis";
 
 const redis = new Redis({
-    url: 'https://tolerant-perch-85744.upstash.io',
-    token: 'gQAAAAAAAU7wAAIncDIzMzE4M2FlMjc2Y2I0Y2VhYWY2Yzg0M2ExYzY4YjU0YXAyODU3NDQ',
-
+    url: "https://tolerant-perch-85744.upstash.io",
+    token: "gQAAAAAAAU7wAAIncDIzMzE4M2FlMjc2Y2I0Y2VhYWY2Yzg0M2ExYzY4YjU0YXAyODU3NDQ",
 });
 
-// POST — принимает письмо от Mailgun
 export const runtime = "nodejs";
 
+// 📩 POST — Mailgun webhook
 export async function POST(req) {
-    console.log("🔥 HIT POST"); // ✅ ВНУТРИ функции
+    console.log("🔥 MAILGUN POST HIT");
 
     try {
-        const text = await req.text();
+        const formData = await req.formData();
 
-        const subjectMatch = text.match(/Subject: (.*)/);
-        const subject = subjectMatch ? subjectMatch[1] : "No subject";
-
-        const toMatch = text.match(/To: (.*)/);
-        const to = toMatch ? toMatch[1] : "Unknown";
-
-        const linkMatch = text.match(/https:\/\/[^\s"]+/);
-        const link = linkMatch ? linkMatch[0] : null;
+        const from = formData.get("from") || "Unknown";
+        const to = formData.get("to") || "Unknown";
+        const subject = formData.get("subject") || "No subject";
+        const text = formData.get("text") || "";
+        const html = formData.get("html") || "";
 
         const email = {
+            id: Date.now().toString(),
             from,
             to,
             subject,
-            link,
-            raw: text.slice(0, 500),
+            text,
+            html,
         };
 
-        console.log("PARSED:", email);
+        console.log("📦 PARSED EMAIL:", email);
 
         await redis.lpush("emails", JSON.stringify(email));
 
-        return Response.json({ success: true });
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+        });
     } catch (e) {
-        console.error(e);
-        return Response.json({ success: false });
+        console.error("❌ ERROR:", e);
+
+        return new Response(JSON.stringify({ success: false }), {
+            status: 500,
+        });
     }
 }
 
-// GET — отдаёт письма фронту
+// 📥 GET — отдаём письма
 export async function GET() {
     try {
         const emails = await redis.lrange("emails", 0, 20);
-        return Response.json(emails.map(e => JSON.parse(e)));
+
+        const parsed = emails.map((e) => {
+            try {
+                return JSON.parse(e);
+            } catch {
+                return null;
+            }
+        }).filter(Boolean);
+
+        return Response.json(parsed);
     } catch (e) {
-        console.error(e);
+        console.error("❌ GET ERROR:", e);
         return Response.json([]);
     }
 }
