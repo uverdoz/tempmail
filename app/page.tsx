@@ -142,9 +142,25 @@ export default function Home() {
 
         // 🔥 ВОТ ЭТА СТРОКА — КЛЮЧЕВАЯ
         const filtered = data.filter((m: any) => {
-          const to = m?.message?.headers?.to || "";
+          const to = m?.message?.headers?.to;
+
+          if (!to) return false;
+
+          // если массив
+          if (Array.isArray(to)) {
+            return to.some((t) => t.includes(email));
+          }
+
+          // если строка
           return to.includes(email);
         });
+
+        const withId = filtered.map((m: any, i: number) => ({
+          ...m,
+          id: m.id || i + "_" + Date.now()
+        }));
+
+        setMessages(withId);
 
         setMessages(filtered);
       }
