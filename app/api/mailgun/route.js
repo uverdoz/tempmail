@@ -9,11 +9,19 @@ await redis.get("foo");
 // ================= POST =================
 export async function POST(req) {
     try {
-        const text = await req.text();
+        const data = await req.formData();
 
-        console.log("MAIL RAW:", text.slice(0, 200));
+        const email = {
+            from: data.get("from"),
+            to: data.get("recipient"),
+            subject: data.get("subject"),
+            text: data.get("body-plain"),
+            html: data.get("body-html"),
+        };
 
-        await redis.lpush("emails", text);
+        console.log("MAIL:", email);
+
+        await redis.lpush("emails", JSON.stringify(email));
 
         return Response.json({ success: true });
     } catch (e) {
@@ -26,10 +34,9 @@ export async function POST(req) {
 export async function GET() {
     try {
         const emails = await redis.lrange("emails", 0, 20);
-        return Response.json(emails);
+        return Response.json(emails.map(e => JSON.parse(e)));
     } catch (e) {
         console.error(e);
         return Response.json([]);
     }
 }
-
