@@ -140,21 +140,11 @@ export default function Home() {
         const res = await fetch("/api/mailgun");
         const data = await res.json();
 
-        // 🔥 ВОТ ЭТА СТРОКА — КЛЮЧЕВАЯ
-        const filtered = data.filter((m: any) => {
-          const to = m?.message?.headers?.to;
+        const filtered = data.filter((m: any) =>
+          m.message?.headers?.to?.includes(email)
+        );
 
-          if (!to) return false;
-
-          // если массив
-          if (Array.isArray(to)) {
-            return to.some((t) => t.includes(email));
-          }
-
-          // если строка
-          return to.includes(email);
-        });
-
+        setMessages(filtered);
         const withId = filtered.map((m: any, i: number) => ({
           ...m,
           id: m.id || i + "_" + Date.now()
