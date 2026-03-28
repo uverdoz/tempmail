@@ -54,8 +54,7 @@ export default function Home() {
       // 🔥 НОВОЕ (ТВОЙ СЕРВИС)
       if (service === "custom") {
         const login = Math.random().toString(36).substring(2, 10);
-        const domain = "tempfastmail.site";
-        setEmail(`${login}@${domain}`);
+        setEmail(`catchall@tempfastmail.site`);
         setToken("");
       }
 
