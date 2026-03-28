@@ -18,14 +18,15 @@ export async function POST(req) {
         const subjectMatch = text.match(/Subject: (.*)/);
         const subject = subjectMatch ? subjectMatch[1] : "No subject";
 
-        const fromMatch = text.match(/From: (.*)/);
-        const from = fromMatch ? fromMatch[1] : "Unknown";
+        const toMatch = text.match(/To: (.*)/);
+        const to = toMatch ? toMatch[1] : "Unknown";
 
         const linkMatch = text.match(/https:\/\/[^\s"]+/);
         const link = linkMatch ? linkMatch[0] : null;
 
         const email = {
             from,
+            to,
             subject,
             link,
             raw: text.slice(0, 500),

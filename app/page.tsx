@@ -54,7 +54,7 @@ export default function Home() {
       // 🔥 НОВОЕ (ТВОЙ СЕРВИС)
       if (service === "custom") {
         const login = Math.random().toString(36).substring(2, 10);
-        const domain = "mail.tempfastmail.site"; // твой домен в mailgun
+        const domain = "tempfastmail.site";
         setEmail(`${login}@${domain}`);
         setToken("");
       }
@@ -146,8 +146,7 @@ export default function Home() {
 
         // ✅ нормальный фильтр (работает всегда)
         const filtered = data.filter((m: any) => {
-          const to = m?.message?.headers?.to;
-
+          const to = m.to;
           if (!to) return false;
 
           if (Array.isArray(to)) {
