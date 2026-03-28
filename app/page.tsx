@@ -122,6 +122,7 @@ export default function Home() {
 
         const data = await res.json();
         setMessages(data["hydra:member"] || []);
+        return;
       }
 
       if (service === "1secmail") {
@@ -133,30 +134,45 @@ export default function Home() {
 
         const data = await res.json();
         setMessages(data || []);
+        return;
       }
 
-      // 🔥 НОВОЕ
+      // 🔥 ТВОЙ MAILGUN
       if (service === "custom") {
         const res = await fetch("/api/mailgun");
         const data = await res.json();
 
-        const filtered = data.filter((m: any) =>
-          m.message?.headers?.to?.includes(email)
-        );
+        console.log("MAILGUN RAW:", data);
 
-        setMessages(filtered);
-        const withId = filtered.map((m: any, i: number) => ({
+        // ✅ нормальный фильтр (работает всегда)
+        const filtered = data.filter((m: any) => {
+          const to = m?.message?.headers?.to;
+
+          if (!to) return false;
+
+          if (Array.isArray(to)) {
+            return to.includes(email);
+          }
+
+          if (typeof to === "string") {
+            return to.includes(email);
+          }
+
+          return false;
+        });
+
+        // ✅ нормальный id
+        const messagesWithId = filtered.map((m: any, i: number) => ({
           ...m,
-          id: m.id || i + "_" + Date.now()
+          id: m.id || `${i}_${Date.now()}`
         }));
 
-        setMessages(withId);
-
-        setMessages(filtered);
+        setMessages(messagesWithId);
+        return;
       }
 
-    } catch {
-      console.log("get messages error");
+    } catch (e) {
+      console.log("get messages error", e);
     }
   };
 
@@ -174,6 +190,7 @@ export default function Home() {
 
         const data = await res.json();
         setSelectedMessage(data);
+        return;
       }
 
       if (service === "1secmail") {
@@ -185,16 +202,18 @@ export default function Home() {
 
         const data = await res.json();
         setSelectedMessage(data);
+        return;
       }
 
-      // 🔥 НОВОЕ
+      // 🔥 MAILGUN
       if (service === "custom") {
         const msg = messages.find((m) => m.id === id);
         setSelectedMessage(msg);
+        return;
       }
 
-    } catch {
-      console.log("open message error");
+    } catch (e) {
+      console.log("open message error", e);
     }
   };
 
