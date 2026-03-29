@@ -1,57 +1,39 @@
 export const runtime = "nodejs";
 
-// 🔥 ГЛОБАЛЬНОЕ ХРАНИЛИЩЕ (важно)
-let emails = globalThis.emails || [];
-globalThis.emails = emails;
+// память
+globalThis.emails = globalThis.emails || [];
 
-// 📩 POST — Mailgun webhook
 export async function POST(req) {
-    console.log("🔥 MAILGUN POST HIT");
+    console.log("🔥 POST HIT");
 
     try {
         const formData = await req.formData();
 
-        const from = formData.get("from") || "Unknown";
-        const to = formData.get("recipient") || formData.get("to") || "Unknown";
-        const subject = formData.get("subject") || "No subject";
-        const text = formData.get("text") || "";
-        const html = formData.get("html") || "";
-
         const email = {
             id: Date.now().toString(),
-            from,
-            to,
-            subject,
-            text,
-            html,
+            from: formData.get("from"),
+            to: formData.get("recipient") || formData.get("to"),
+            subject: formData.get("subject"),
+            text: formData.get("text"),
+            html: formData.get("html"),
         };
 
-        console.log("📦 EMAIL:", email);
+        console.log("📦 PARSED:", email);
 
-        // 🔥 СОХРАНЯЕМ В ПАМЯТЬ
+        // 🔥 ВОТ ЭТО ГЛАВНОЕ
         globalThis.emails.unshift(email);
 
-        // ограничение (чтобы не раздувалось)
-        globalThis.emails = globalThis.emails.slice(0, 50);
+        console.log("✅ STORED:", globalThis.emails.length);
 
-        console.log("✅ STORED IN MEMORY:", globalThis.emails.length);
-
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-        });
+        return new Response("ok");
 
     } catch (e) {
-        console.error("❌ ERROR:", e);
-
-        return new Response(JSON.stringify({ success: false }), {
-            status: 500,
-        });
+        console.error(e);
+        return new Response("error", { status: 500 });
     }
 }
 
-// 📥 GET — отдаём письма
 export async function GET() {
-    console.log("📤 GET EMAILS:", globalThis.emails?.length || 0);
-
-    return Response.json(globalThis.emails || []);
+    console.log("📤 GET:", globalThis.emails.length);
+    return Response.json(globalThis.emails);
 }
