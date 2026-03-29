@@ -8,14 +8,11 @@ export const runtime = "nodejs";
 export async function POST(req) {
     console.log("🔥 MAILGUN POST HIT");
 
-    await redis.lpush("emails", JSON.stringify(email));
-
-    console.log("✅ SAVED TO REDIS");
     try {
         const formData = await req.formData();
 
         const from = formData.get("from") || "Unknown";
-        const to = formData.get("to") || "Unknown";
+        const to = formData.get("recipient") || formData.get("to") || "Unknown";
         const subject = formData.get("subject") || "No subject";
         const text = formData.get("text") || "";
         const html = formData.get("html") || "";
@@ -31,11 +28,15 @@ export async function POST(req) {
 
         console.log("📦 PARSED EMAIL:", email);
 
+        // ✅ ВОТ ТУТ ПРАВИЛЬНО
         await redis.lpush("emails", JSON.stringify(email));
+
+        console.log("✅ SAVED TO REDIS");
 
         return new Response(JSON.stringify({ success: true }), {
             status: 200,
         });
+
     } catch (e) {
         console.error("❌ ERROR:", e);
 
