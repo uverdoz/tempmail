@@ -1,9 +1,6 @@
 import { Redis } from "@upstash/redis";
 
-const redis = new Redis({
-    url: "https://tolerant-perch-85744.upstash.io",
-    token: "gQAAAAAAAU7wAAIncDIzMzE4M2FlMjc2Y2I0Y2VhYWY2Yzg0M2ExYzY4YjU0YXAyODU3NDQ",
-});
+const redis = Redis.fromEnv();
 
 export const runtime = "nodejs";
 
@@ -11,6 +8,9 @@ export const runtime = "nodejs";
 export async function POST(req) {
     console.log("🔥 MAILGUN POST HIT");
 
+    await redis.lpush("emails", JSON.stringify(email));
+
+    console.log("✅ SAVED TO REDIS");
     try {
         const formData = await req.formData();
 
