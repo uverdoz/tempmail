@@ -1,8 +1,8 @@
-import { Redis } from "@upstash/redis";
-
-const redis = Redis.fromEnv();
-
 export const runtime = "nodejs";
+
+// 🔥 ГЛОБАЛЬНОЕ ХРАНИЛИЩЕ (важно)
+let emails = globalThis.emails || [];
+globalThis.emails = emails;
 
 // 📩 POST — Mailgun webhook
 export async function POST(req) {
@@ -26,12 +26,15 @@ export async function POST(req) {
             html,
         };
 
-        console.log("📦 PARSED EMAIL:", email);
+        console.log("📦 EMAIL:", email);
 
-        // ✅ ВОТ ТУТ ПРАВИЛЬНО
-        await redis.lpush("emails", JSON.stringify(email));
+        // 🔥 СОХРАНЯЕМ В ПАМЯТЬ
+        globalThis.emails.unshift(email);
 
-        console.log("✅ SAVED TO REDIS");
+        // ограничение (чтобы не раздувалось)
+        globalThis.emails = globalThis.emails.slice(0, 50);
+
+        console.log("✅ STORED IN MEMORY:", globalThis.emails.length);
 
         return new Response(JSON.stringify({ success: true }), {
             status: 200,
@@ -48,20 +51,7 @@ export async function POST(req) {
 
 // 📥 GET — отдаём письма
 export async function GET() {
-    try {
-        const emails = await redis.lrange("emails", 0, 20);
+    console.log("📤 GET EMAILS:", globalThis.emails?.length || 0);
 
-        const parsed = emails.map((e) => {
-            try {
-                return JSON.parse(e);
-            } catch {
-                return null;
-            }
-        }).filter(Boolean);
-
-        return Response.json(parsed);
-    } catch (e) {
-        console.error("❌ GET ERROR:", e);
-        return Response.json([]);
-    }
+    return Response.json(globalThis.emails || []);
 }
