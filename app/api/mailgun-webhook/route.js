@@ -48,6 +48,30 @@ export async function POST(req) {
         return Response.json({ ok: true });
     } catch (e) {
         console.error("[ERROR] POST:", e.message);
+        console.log("📥 REDIS READ", key);
         return Response.json({ ok: false }, { status: 500 });
+    }
+}
+
+export async function GET(req) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const email = searchParams.get("email");
+
+        if (!email) {
+            return Response.json([]);
+        }
+
+        const key = `emails:${email.toLowerCase().trim()}`;
+
+        const data = await redis.lrange(key, 0, 50);
+
+        const parsed = data.map((item) => JSON.parse(item));
+
+        return Response.json(parsed);
+    } catch (e) {
+        console.error("[ERROR] GET:", e.message);
+        console.log("📥 REDIS READ", key);
+        return Response.json([]);
     }
 }
