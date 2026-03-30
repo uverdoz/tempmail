@@ -1,5 +1,6 @@
 // app/api/mailgun/route.js
 export const runtime = "nodejs";
+export const dynamic = 'force-dynamic';   // ← Эта строка важна!
 
 globalThis.emails = globalThis.emails || [];
 
@@ -38,4 +39,4 @@ export async function GET() {
     const count = globalThis.emails ? globalThis.emails.length : 0;
     console.log(`📥 GET: Вернул ${count} писем`);
     return Response.json(globalThis.emails || []);
-}
+} Ы
