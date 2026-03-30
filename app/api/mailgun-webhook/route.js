@@ -1,4 +1,4 @@
-// app/api/mailgun/route.js
+// app/api/mailgun-webhook/route.js
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
