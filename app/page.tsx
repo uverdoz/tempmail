@@ -186,234 +186,234 @@ export default function Home() {
     }
   };
 
-  // ================= OPEN MESSAGE =================
-  const openMessage = async (id: any) => {
-    try {
-      if (service === "mailtm") {
-        if (!token) return;
+// ================= OPEN MESSAGE =================
+const openMessage = async (id: any) => {
+  try {
+    if (service === "mailtm") {
+      if (!token) return;
 
-        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+      const res = await fetch(`https://api.mail.tm/messages/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const data = await res.json();
-        setSelectedMessage(data);
-        return;
-      }
-
-      if (service === "1secmail") {
-        const [login, domain] = email.split("@");
-
-        const res = await fetch(
-          `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`
-        );
-
-        const data = await res.json();
-        setSelectedMessage(data);
-        return;
-      }
-
-      // 🔥 MAILGUN
-      if (service === "custom") {
-        const msg = messages.find((m) => m.id === id);
-        setSelectedMessage(msg);
-        return;
-      }
-
-    } catch (e) {
-      console.log("open message error", e);
+      const data = await res.json();
+      setSelectedMessage(data);
+      return;
     }
-  };
 
-  // ================= AUTO =================
-  useEffect(() => {
-    loadDomains();
-  }, [service]);
+    if (service === "1secmail") {
+      const [login, domain] = email.split("@");
 
-  useEffect(() => {
-    if (service === "mailtm" && !token) return;
-    if (!email) return;
+      const res = await fetch(
+        `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`
+      );
 
-    getMessages();
-    const interval = setInterval(getMessages, 5000);
+      const data = await res.json();
+      setSelectedMessage(data);
+      return;
+    }
 
-    return () => clearInterval(interval);
-  }, [token, email, service]);
+    // 🔥 MAILGUN
+    if (service === "custom") {
+      const msg = messages.find((m) => m.id === id);
+      setSelectedMessage(msg);
+      return;
+    }
 
-  // ================= UI =================
-  return (
-    <div style={wrapper}>
+  } catch (e) {
+    console.log("open message error", e);
+  }
+};
 
-      <div style={container}>
+// ================= AUTO =================
+useEffect(() => {
+  loadDomains();
+}, [service]);
 
-        <h1 style={logo}>
-          TempFastMail
-        </h1>
+useEffect(() => {
+  if (service === "mailtm" && !token) return;
+  if (!email) return;
 
-        <div style={emailBlock}>
+  getMessages();
+  const interval = setInterval(getMessages, 5000);
 
-          <div style={row}>
+  return () => clearInterval(interval);
+}, [token, email, service]);
 
-            <button
-              onClick={createEmail}
-              style={newMailBtn}
-              onMouseEnter={hoverMove}
-              onMouseLeave={hoverReset}
-            >
-              Новая почта
-            </button>
+// ================= UI =================
+return (
+  <div style={wrapper}>
 
-            <div style={emailStyle}>
-              {email}
-            </div>
+    <div style={container}>
 
-            {/* 🔥 СЕЛЕКТОР СЕРВИСА */}
-            <select
-              value={service}
-              onChange={(e) => setService(e.target.value as any)}
-              style={{
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: 8,
-                padding: "13px 3px"
-              }}
-            >
-              <option value="mailtm">mail.tm</option>
-              <option value="1secmail">1secmail</option>
-              <option value="custom">TempFastMail</option>
-            </select>
+      <h1 style={logo}>
+        TempFastMail
+      </h1>
 
-            {/* ДОМЕНЫ */}
-            <select
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value)}
-              style={{
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: 8,
-                padding: "13px 3px"
-              }}
-            >
-              {domains.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+      <div style={emailBlock}>
 
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(email);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1500);
-              }}
-              style={iconBtn}
-              onMouseEnter={hoverMove}
-              onMouseLeave={hoverReset}
-            >
-              <FiCopy />
-            </button>
+        <div style={row}>
 
-            <button
-              onClick={() => {
-                setSpinning(true);
-                getMessages();
-                setTimeout(() => setSpinning(false), 700);
-              }}
-              style={iconBtn}
-              onMouseEnter={hoverGlow}
-              onMouseLeave={hoverReset}
-            >
-              <FiRefreshCw
-                style={{
-                  animation: spinning ? "spin 0.7s linear" : "none"
-                }}
-              />
-            </button>
+          <button
+            onClick={createEmail}
+            style={newMailBtn}
+            onMouseEnter={hoverMove}
+            onMouseLeave={hoverReset}
+          >
+            Новая почта
+          </button>
 
+          <div style={emailStyle}>
+            {email}
           </div>
 
-          {copied && <div style={toast}>Скопировано</div>}
+          {/* 🔥 СЕЛЕКТОР СЕРВИСА */}
+          <select
+            value={service}
+            onChange={(e) => setService(e.target.value as any)}
+            style={{
+              background: "#111",
+              color: "white",
+              border: "1px solid #333",
+              borderRadius: 8,
+              padding: "13px 3px"
+            }}
+          >
+            <option value="mailtm">mail.tm</option>
+            <option value="1secmail">1secmail</option>
+            <option value="custom">TempFastMail</option>
+          </select>
+
+          {/* ДОМЕНЫ */}
+          <select
+            value={selectedDomain}
+            onChange={(e) => setSelectedDomain(e.target.value)}
+            style={{
+              background: "#111",
+              color: "white",
+              border: "1px solid #333",
+              borderRadius: 8,
+              padding: "13px 3px"
+            }}
+          >
+            {domains.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(email);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+            style={iconBtn}
+            onMouseEnter={hoverMove}
+            onMouseLeave={hoverReset}
+          >
+            <FiCopy />
+          </button>
+
+          <button
+            onClick={() => {
+              setSpinning(true);
+              getMessages();
+              setTimeout(() => setSpinning(false), 700);
+            }}
+            style={iconBtn}
+            onMouseEnter={hoverGlow}
+            onMouseLeave={hoverReset}
+          >
+            <FiRefreshCw
+              style={{
+                animation: spinning ? "spin 0.7s linear" : "none"
+              }}
+            />
+          </button>
+
         </div>
 
-        <div style={grid}>
+        {copied && <div style={toast}>Скопировано</div>}
+      </div>
 
-          <div style={list}>
-            {messages.length === 0 && (
-              <p style={{ color: "#666" }}>Нет писем</p>
-            )}
+      <div style={grid}>
 
-            {messages.map((msg, index) => {
-              const active = selectedMessage?.id === msg.id;
+        <div style={list}>
+          {messages.length === 0 && (
+            <p style={{ color: "#666" }}>Нет писем</p>
+          )}
 
-              return (
-                <div
-                  key={msg.id}
-                  onClick={() => openMessage(msg.id)}
-                  style={{
-                    padding: 10,
-                    borderRadius: 10,
-                    marginBottom: 10,
-                    cursor: "pointer",
-                    background: active ? "#141414" : "transparent",
-                    boxShadow: active
-                      ? "0 0 25px rgba(255,80,80,0.25)"
-                      : "none",
-                    border: active ? "1px solid rgba(255,80,80,0.4)" : "1px solid #222",
-                    transition: "0.2s",
-                    animation: "fadeInUp 0.3s ease forwards",
-                    animationDelay: `${index * 0.03}s`,
-                    opacity: 0,
-                  }}
-                >
-                  <b style={{ fontSize: 13 }}>
-                    {typeof msg.from === "object"
-                      ? msg.from?.address
-                      : msg.from}
-                  </b>
+          {messages.map((msg, index) => {
+            const active = selectedMessage?.id === msg.id;
 
-                  <p style={subject}>
-                    {msg.subject}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <div
+                key={msg.id}
+                onClick={() => openMessage(msg.id)}
+                style={{
+                  padding: 10,
+                  borderRadius: 10,
+                  marginBottom: 10,
+                  cursor: "pointer",
+                  background: active ? "#141414" : "transparent",
+                  boxShadow: active
+                    ? "0 0 25px rgba(255,80,80,0.25)"
+                    : "none",
+                  border: active ? "1px solid rgba(255,80,80,0.4)" : "1px solid #222",
+                  transition: "0.2s",
+                  animation: "fadeInUp 0.3s ease forwards",
+                  animationDelay: `${index * 0.03}s`,
+                  opacity: 0,
+                }}
+              >
+                <b style={{ fontSize: 13 }}>
+                  {typeof msg.from === "object"
+                    ? msg.from?.address
+                    : msg.from}
+                </b>
 
-          <div style={messageBox}>
-            {!selectedMessage ? (
-              <p style={{ color: "#666" }}>Выбери письмо</p>
-            ) : (
-              <>
-                <h3>{selectedMessage.subject}</h3>
-
-                <p style={{ color: "#888" }}>
-                  {typeof selectedMessage.from === "object"
-                    ? selectedMessage.from?.address
-                    : selectedMessage.from}
+                <p style={subject}>
+                  {msg.subject}
                 </p>
+              </div>
+            );
+          })}
+        </div>
 
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      selectedMessage.html ||
-                      selectedMessage.text ||
-                      "Пусто"
-                  }}
-                />
-              </>
-            )}
-          </div>
+        <div style={messageBox}>
+          {!selectedMessage ? (
+            <p style={{ color: "#666" }}>Выбери письмо</p>
+          ) : (
+            <>
+              <h3>{selectedMessage.subject}</h3>
 
+              <p style={{ color: "#888" }}>
+                {typeof selectedMessage.from === "object"
+                  ? selectedMessage.from?.address
+                  : selectedMessage.from}
+              </p>
+
+              <div
+                dangerouslySetInnerHTML={{
+                  __html:
+                    selectedMessage.html ||
+                    selectedMessage.text ||
+                    "Пусто"
+                }}
+              />
+            </>
+          )}
         </div>
 
       </div>
 
-      <style jsx global>{`
+    </div>
+
+    <style jsx global>{`
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -435,8 +435,8 @@ export default function Home() {
         }
       `}</style>
 
-    </div>
-  );
+  </div>
+);
 }
 
 // ================= STYLES =================
