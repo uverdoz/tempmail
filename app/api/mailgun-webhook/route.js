@@ -4,10 +4,7 @@ import { Redis } from "@upstash/redis";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL || "",
-    token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
-});
+const redis = Redis.fromEnv();   // ←←← Вот это самое надёжное
 
 const TTL = 60 * 30; // 30 минут
 
@@ -18,7 +15,7 @@ export async function POST(req) {
         const to = String(toRaw).toLowerCase().trim().split(",")[0];
 
         if (!to) {
-            return Response.json({ ok: false, error: "No recipient" }, { status: 400 });
+            return Response.json({ ok: false }, { status: 400 });
         }
 
         const emailData = {
@@ -37,7 +34,7 @@ export async function POST(req) {
         await redis.ltrim(key, 0, 99);
         await redis.expire(key, TTL);
 
-        console.log(`[OK] Saved to Redis → ${to}`);
+        console.log(`[OK] Saved → ${to}`);
 
         return Response.json({ ok: true });
     } catch (e) {
@@ -49,36 +46,21 @@ export async function POST(req) {
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
-        let email = searchParams.get("email") || "";
+        const email = searchParams.get("email")?.toLowerCase().trim();
 
-        email = email.toLowerCase().trim();
-
-        console.log(`[GET] Получен email из запроса: "${email}"`);
-
-        if (!email) {
-            console.log("[GET] Email пустой");
-            return Response.json([]);
-        }
+        if (!email) return Response.json([]);
 
         const key = `emails:${email}`;
-        console.log(`[GET] Ищем по ключу: "${key}"`);
+        const raw = await redis.lrange(key, 0, 99);
 
-        const rawData = await redis.lrange(key, 0, 99);
-
-        console.log(`[GET] В Redis найдено ${rawData.length} элементов`);
-
-        const emails = rawData
-            .map((item, index) => {
-                try {
-                    return JSON.parse(item);
-                } catch (e) {
-                    console.log(`[GET] Ошибка парсинга элемента ${index}`);
-                    return null;
-                }
+        const emails = raw
+            .map(item => {
+                try { return JSON.parse(item); }
+                catch { return null; }
             })
             .filter(Boolean);
 
-        console.log(`[GET] Успешно распарсено ${emails.length} писем для ${email}`);
+        console.log(`[GET] Found ${emails.length} for ${email}`);
 
         return Response.json(emails);
     } catch (e) {
