@@ -138,6 +138,7 @@ export default function Home() {
       }
 
       // 🔥 MAILGUN / custom — ПРОСТОЙ ВАРИАНТ БЕЗ ОШИБОК
+      // 🔥 MAILGUN / custom — через LocalStorage (самый простой вариант)
       if (service === "custom") {
         try {
           const res = await fetch("/api/mailgun-webhook");
@@ -150,14 +151,10 @@ export default function Home() {
 
           const data = await res.json();
 
-          console.log("📥 MAILGUN RAW length:", Array.isArray(data) ? data.length : 0);
-          console.log("📧 CURRENT EMAIL:", email);
+          console.log("📥 RAW from server:", data);
 
-          if (Array.isArray(data) && data.length > 0) {
-            console.log("📋 FIRST EMAIL in KV:", data[0]);
-          } else {
-            console.log("📋 No emails in KV or not array");
-          }
+          // Сохраняем всё, что пришло, в LocalStorage
+          localStorage.setItem("tempfastmail_emails", JSON.stringify(data));
 
           const filtered = data.filter((m: any) => {
             if (!m?.to) return false;
@@ -175,8 +172,27 @@ export default function Home() {
 
           setMessages(messagesWithId);
         } catch (err) {
-          console.error("Custom mailgun fetch error:", err);
-          setMessages([]);
+          console.error("Custom fetch error:", err);
+
+          // Если сервер не ответил — пытаемся взять из LocalStorage
+          const saved = localStorage.getItem("tempfastmail_emails");
+          if (saved) {
+            const data = JSON.parse(saved);
+            console.log("📦 Взял из LocalStorage:", data.length);
+            // ... тот же фильтр
+            const filtered = data.filter((m: any) => {
+              if (!m?.to) return false;
+              const msgTo = String(m.to).toLowerCase().trim();
+              const current = email.toLowerCase().trim();
+              return msgTo === current || msgTo.includes(current);
+            });
+            setMessages(filtered.map((m: any, i: number) => ({
+              ...m,
+              id: m.id || `msg_${Date.now()}_${i}`
+            })));
+          } else {
+            setMessages([]);
+          }
         }
         return;
       }

@@ -21,22 +21,18 @@ export async function POST(req) {
         };
 
         globalThis.emails.unshift(emailData);
+        if (globalThis.emails.length > 50) globalThis.emails = globalThis.emails.slice(0, 50);
 
-        if (globalThis.emails.length > 50) {
-            globalThis.emails = globalThis.emails.slice(0, 50);
-        }
-
-        console.log(`✅ ПИСЬМО СОХРАНЕНО → ${toClean} | Всего: ${globalThis.emails.length}`);
+        console.log(`✅ ПИСЬМО СОХРАНЕНО → ${toClean}`);
 
         return Response.json({ ok: true });
     } catch (e) {
-        console.error("❌ POST ERROR:", e);
+        console.error("POST error:", e);
         return Response.json({ ok: false }, { status: 500 });
     }
 }
 
 export async function GET() {
-    const count = globalThis.emails ? globalThis.emails.length : 0;
-    console.log(`📥 GET: Вернул ${count} писем`);
-    return Response.json(globalThis.emails || []);
+    console.log(`📥 GET: Вернул ${globalThis.emails.length} писем`);
+    return Response.json(globalThis.emails);
 }
