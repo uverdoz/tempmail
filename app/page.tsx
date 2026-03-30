@@ -140,7 +140,7 @@ export default function Home() {
       // 🔥 MAILGUN — чистая версия
       if (service === "custom") {
         try {
-          const res = await fetch(`/api/mailgun-webhook?email=${email}`);
+          const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
           const data = await res.json();
 
           setMessages(data || []);

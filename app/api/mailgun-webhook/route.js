@@ -57,25 +57,20 @@ export async function POST(req) {
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
-
         const emailRaw = searchParams.get("email") || "";
 
-        const email = emailRaw
-            .toLowerCase()
-            .split(",")[0]
-            .trim();
+        const email = emailRaw.toLowerCase().trim();
 
         if (!email) {
+            console.log("[GET] Нет email в запросе");
             return Response.json([]);
         }
 
         const key = `emails:${email}`;
 
-        console.log("GET KEY:", key);
+        console.log(`[GET] Ищем по ключу: ${key}`);
 
-        const data = await redis.lrange(key, 0, 50);
-
-        console.log("REDIS DATA:", data);
+        const data = await redis.lrange(key, 0, 99);
 
         const parsed = data
             .map((item) => {
@@ -87,8 +82,9 @@ export async function GET(req) {
             })
             .filter(Boolean);
 
-        return Response.json(parsed);
+        console.log(`[GET] Найдено ${parsed.length} писем для ${email}`);
 
+        return Response.json(parsed);
     } catch (e) {
         console.error("[ERROR] GET:", e.message);
         return Response.json([]);
