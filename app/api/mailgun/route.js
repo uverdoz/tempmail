@@ -3,30 +3,37 @@ export const runtime = "nodejs";
 globalThis.emails = globalThis.emails || [];
 
 export async function POST(req) {
-    try {
-        const formData = await req.formData();
+    const formData = await req.formData();
 
-        const email = {
-            id: Date.now().toString(),
-            from: formData.get("from"),
-            to: formData.get("recipient"),
-            subject: formData.get("subject"),
-            text: formData.get("body-plain"),
-            html: formData.get("body-html"),
-        };
+    const email = {
+        id: Date.now().toString(),
+        from: formData.get("from"),
+        to: formData.get("recipient"),
+        subject: formData.get("subject"),
+        storageUrl: formData.get("storage-url"), // ВАЖНО
+    };
 
-        console.log("MAIL:", email);
+    globalThis.lastEmail = email; // временно
 
-        globalThis.emails.unshift(email);
-
-        return Response.json({ ok: true });
-
-    } catch (e) {
-        console.error("ERROR:", e);
-        return Response.json({ ok: false });
-    }
+    return Response.json({ ok: true });
 }
 
 export async function GET() {
-    return Response.json(globalThis.emails || []);
+    if (!globalThis.lastEmail) return Response.json([]);
+
+    const res = await fetch(globalThis.lastEmail.storageUrl, {
+        headers: {
+            Authorization: "Basic " + Buffer.from("api:YOUR_API_KEY").toString("base64"),
+        },
+    });
+
+    const data = await res.json();
+
+    return Response.json([{
+        id: "1",
+        from: data.from,
+        subject: data.subject,
+        html: data["body-html"],
+        text: data["body-plain"],
+    }]);
 }
