@@ -8,8 +8,10 @@ const redis = new Redis({
     token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-const TTL = 60 * 10; // 10 минут
+const TTL = 60 * 10;
 
+
+// ================= POST =================
 export async function POST(req) {
     try {
         const formData = await req.formData();
@@ -19,7 +21,10 @@ export async function POST(req) {
             formData.get("to") ||
             "";
 
-        const to = String(toRaw).toLowerCase().trim();
+        const to = String(toRaw)
+            .toLowerCase()
+            .split(",")[0]
+            .trim();
 
         const email = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
@@ -31,47 +36,58 @@ export async function POST(req) {
             text: formData.get("body-plain") || "",
         };
 
-        // 📦 КЛЮЧ ДЛЯ КОНКРЕТНОЙ ПОЧТЫ
-        const key = `emails:${to}`;
+        // ✅ ФИКС
+        const key = `emails: ${to}`;
 
-        // сохраняем письмо
         await redis.lpush(key, JSON.stringify(email));
-
-        // ограничиваем список (100 писем)
         await redis.ltrim(key, 0, 99);
-
-        // TTL (автоудаление)
         await redis.expire(key, TTL);
 
         console.log(`[OK] Redis saved for ${to}`);
 
         return Response.json({ ok: true });
+
     } catch (e) {
         console.error("[ERROR] POST:", e.message);
-        console.log("📥 REDIS READ", key);
         return Response.json({ ok: false }, { status: 500 });
     }
 }
 
+
+// ================= GET =================
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
-        const email = searchParams.get("email");
+
+        const emailRaw = searchParams.get("email") || "";
+
+        const email = emailRaw
+            .toLowerCase()
+            .split(",")[0]
+            .trim();
 
         if (!email) {
             return Response.json([]);
         }
 
-        const key = `emails:${email.toLowerCase().trim()}`;
+        const key = `emails: ${email}`;
 
         const data = await redis.lrange(key, 0, 50);
 
-        const parsed = data.map((item) => JSON.parse(item));
+        const parsed = data
+            .map((item) => {
+                try {
+                    return JSON.parse(item);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
 
         return Response.json(parsed);
+
     } catch (e) {
         console.error("[ERROR] GET:", e.message);
-        console.log("📥 REDIS READ", key);
         return Response.json([]);
     }
 }
