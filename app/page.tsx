@@ -140,25 +140,12 @@ export default function Home() {
       // 🔥 MAILGUN — чистая версия
       if (service === "custom") {
         try {
-          const res = await fetch("/api/mailgun-webhook");
+          const res = await fetch(`/api/emails?email=${email}`);
           const data = await res.json();
 
-          // Фильтруем только письма для текущего email
-          const filtered = data.filter((m: any) => {
-            if (!m?.to) return false;
-            const msgTo = String(m.to).toLowerCase().trim();
-            const current = email.toLowerCase().trim();
-            return msgTo === current || msgTo.includes(current);
-          });
-
-          const messagesWithId = filtered.map((m: any, i: number) => ({
-            ...m,
-            id: m.id || `msg_${Date.now()}_${i}`
-          }));
-
-          setMessages(messagesWithId);
-        } catch (err) {
-          console.error("Ошибка получения писем:", err);
+          setMessages(data || []);
+        } catch (e) {
+          console.error(e);
           setMessages([]);
         }
         return;

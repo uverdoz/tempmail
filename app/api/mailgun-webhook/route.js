@@ -1,39 +1,53 @@
-// app/api/mailgun-webhook/route.js
+import { Redis } from "@upstash/redis";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-globalThis.emails = globalThis.emails || [];
+const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
+
+const TTL = 60 * 10; // 10 минут
 
 export async function POST(req) {
     try {
         const formData = await req.formData();
-        const toRaw = formData.get("recipient") || formData.get("to") || "";
-        const toClean = String(toRaw).toLowerCase().trim();
 
-        const emailData = {
+        const toRaw =
+            formData.get("recipient") ||
+            formData.get("to") ||
+            "";
+
+        const to = String(toRaw).toLowerCase().trim();
+
+        const email = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
             timestamp: Date.now(),
-            from: formData.get("from") || formData.get("sender") || "unknown",
-            to: toClean,
+            from: formData.get("from") || "unknown",
+            to,
             subject: formData.get("subject") || "",
-            html: formData.get("body-html") || formData.get("body-plain") || "",
+            html: (formData.get("body-html") || "").replaceAll("http://", "https://"),
             text: formData.get("body-plain") || "",
         };
 
-        globalThis.emails.unshift(emailData);
-        if (globalThis.emails.length > 100) {
-            globalThis.emails = globalThis.emails.slice(0, 100);
-        }
+        // 📦 КЛЮЧ ДЛЯ КОНКРЕТНОЙ ПОЧТЫ
+        const key = `emails:${to}`;
 
-        console.log(`[TempFastMail] Письмо сохранено → ${toClean}`);
+        // сохраняем письмо
+        await redis.lpush(key, JSON.stringify(email));
+
+        // ограничиваем список (100 писем)
+        await redis.ltrim(key, 0, 99);
+
+        // TTL (автоудаление)
+        await redis.expire(key, TTL);
+
+        console.log(`[OK] Redis saved for ${to}`);
 
         return Response.json({ ok: true });
     } catch (e) {
-        console.error("[TempFastMail] POST error:", e.message);
+        console.error("[ERROR] POST:", e.message);
         return Response.json({ ok: false }, { status: 500 });
     }
-}
-
-export async function GET() {
-    return Response.json(globalThis.emails || []);
 }
