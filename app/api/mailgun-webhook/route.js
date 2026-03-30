@@ -1,40 +1,32 @@
 // app/api/mailgun-webhook/route.js
-import { Redis } from "@upstash/redis";
-
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const redis = Redis.fromEnv();   // ←←← Вот это самое надёжное
-
-const TTL = 60 * 30; // 30 минут
+globalThis.emails = globalThis.emails || [];
 
 export async function POST(req) {
     try {
         const formData = await req.formData();
         const toRaw = formData.get("recipient") || formData.get("to") || "";
-        const to = String(toRaw).toLowerCase().trim().split(",")[0];
-
-        if (!to) {
-            return Response.json({ ok: false }, { status: 400 });
-        }
+        const toClean = String(toRaw).toLowerCase().trim();
 
         const emailData = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
             timestamp: Date.now(),
             from: formData.get("from") || "unknown",
-            to,
+            to: toClean,
             subject: formData.get("subject") || "",
             html: formData.get("body-html") || "",
             text: formData.get("body-plain") || "",
         };
 
-        const key = `emails:${to}`;
+        globalThis.emails.unshift(emailData);
 
-        await redis.lpush(key, JSON.stringify(emailData));
-        await redis.ltrim(key, 0, 99);
-        await redis.expire(key, TTL);
+        if (globalThis.emails.length > 100) {
+            globalThis.emails = globalThis.emails.slice(0, 100);
+        }
 
-        console.log(`[OK] Saved → ${to}`);
+        console.log(`[OK] Письмо сохранено → ${toClean}`);
 
         return Response.json({ ok: true });
     } catch (e) {
@@ -43,28 +35,7 @@ export async function POST(req) {
     }
 }
 
-export async function GET(req) {
-    try {
-        const { searchParams } = new URL(req.url);
-        const email = searchParams.get("email")?.toLowerCase().trim();
-
-        if (!email) return Response.json([]);
-
-        const key = `emails:${email}`;
-        const raw = await redis.lrange(key, 0, 99);
-
-        const emails = raw
-            .map(item => {
-                try { return JSON.parse(item); }
-                catch { return null; }
-            })
-            .filter(Boolean);
-
-        console.log(`[GET] Found ${emails.length} for ${email}`);
-
-        return Response.json(emails);
-    } catch (e) {
-        console.error("[ERROR] GET:", e.message);
-        return Response.json([]);
-    }
+export async function GET() {
+    console.log(`[GET] Возвращаю ${globalThis.emails.length} писем`);
+    return Response.json(globalThis.emails || []);
 }
