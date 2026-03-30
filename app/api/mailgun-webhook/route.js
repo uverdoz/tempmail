@@ -1,13 +1,8 @@
 // app/api/mailgun-webhook/route.js
-import { Redis } from "@upstash/redis";
+import { sql } from '@vercel/postgres';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-// Самый надёжный способ инициализации
-const redis = Redis.fromEnv();
-
-const TTL = 60 * 30; // 30 минут — достаточно для temp mail
 
 export async function POST(req) {
     try {
@@ -16,7 +11,7 @@ export async function POST(req) {
         const to = String(toRaw).toLowerCase().trim().split(",")[0];
 
         if (!to) {
-            return Response.json({ ok: false, error: "No recipient" }, { status: 400 });
+            return Response.json({ ok: false }, { status: 400 });
         }
 
         const emailData = {
@@ -29,13 +24,19 @@ export async function POST(req) {
             text: formData.get("body-plain") || "",
         };
 
-        const key = `emails:${to}`;
+        await sql`
+      INSERT INTO emails (id, timestamp, "from", "to", subject, html, text)
+      VALUES (${emailData.id}, ${emailData.timestamp}, ${emailData.from}, ${emailData.to}, 
+              ${emailData.subject}, ${emailData.html}, ${emailData.text})
+    `;
 
-        await redis.lpush(key, JSON.stringify(emailData));
-        await redis.ltrim(key, 0, 99);     // максимум 100 писем на один адрес
-        await redis.expire(key, TTL);
+        // Удаляем старые письма (старше 30 минут)
+        await sql`
+      DELETE FROM emails 
+      WHERE timestamp < ${Date.now() - 30 * 60 * 1000}
+    `;
 
-        console.log(`[OK] Saved to Redis → ${to}`);
+        console.log(`[OK] Письмо сохранено в Postgres → ${to}`);
 
         return Response.json({ ok: true });
     } catch (e) {
@@ -49,26 +50,18 @@ export async function GET(req) {
         const { searchParams } = new URL(req.url);
         const email = searchParams.get("email")?.toLowerCase().trim();
 
-        if (!email) {
-            return Response.json([]);
-        }
+        if (!email) return Response.json([]);
 
-        const key = `emails:${email}`;
-        const rawData = await redis.lrange(key, 0, 99);
+        const result = await sql`
+      SELECT * FROM emails 
+      WHERE "to" = ${email}
+      ORDER BY timestamp DESC
+      LIMIT 100
+    `;
 
-        const emails = rawData
-            .map((item) => {
-                try {
-                    return JSON.parse(item);
-                } catch {
-                    return null;
-                }
-            })
-            .filter(Boolean);
+        console.log(`[GET] Найдено ${result.rows.length} писем для ${email}`);
 
-        console.log(`[GET] Found ${emails.length} emails for ${email}`);
-
-        return Response.json(emails);
+        return Response.json(result.rows);
     } catch (e) {
         console.error("[ERROR] GET:", e.message);
         return Response.json([]);
