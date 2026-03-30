@@ -137,14 +137,25 @@ export default function Home() {
         return;
       }
 
-      // 🔥 MAILGUN — чистая версия
+      // 🔥 MAILGUN / TempFastMail
       if (service === "custom") {
         try {
-          const res = await fetch("/api/mailgun-webhook");
+          console.log(`[Frontend] Запрашиваю письма для: ${email}`);
+
+          const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+
           const data = await res.json();
+
+          console.log(`[Frontend] Получено ${data.length} писем`);
+          console.log(`[Frontend] Первый email в ответе:`, data[0] ? data[0].to : "нет");
+
           setMessages(data || []);
         } catch (err) {
-          console.error("Custom fetch error:", err);
+          console.error("[Frontend] Custom fetch error:", err);
           setMessages([]);
         }
         return;
