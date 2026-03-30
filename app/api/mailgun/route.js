@@ -1,39 +1,32 @@
 export const runtime = "nodejs";
 
-// память
 globalThis.emails = globalThis.emails || [];
 
 export async function POST(req) {
-    console.log("🔥 POST HIT");
-
     try {
         const formData = await req.formData();
 
         const email = {
             id: Date.now().toString(),
             from: formData.get("from"),
-            to: formData.get("recipient") || formData.get("to"),
+            to: formData.get("recipient"),
             subject: formData.get("subject"),
-            text: formData.get("text"),
-            html: formData.get("html"),
+            text: formData.get("body-plain"),
+            html: formData.get("body-html"),
         };
 
-        console.log("📦 PARSED:", email);
+        console.log("EMAIL:", email);
 
-        // 🔥 ВОТ ЭТО ГЛАВНОЕ
         globalThis.emails.unshift(email);
 
-        console.log("✅ STORED:", globalThis.emails.length);
-
-        return new Response("ok");
+        return Response.json({ ok: true });
 
     } catch (e) {
-        console.error(e);
-        return new Response("error", { status: 500 });
+        console.error("ERROR:", e);
+        return Response.json({ ok: false });
     }
 }
 
 export async function GET() {
-    console.log("📤 GET:", globalThis.emails.length);
-    return Response.json(globalThis.emails);
+    return Response.json(globalThis.emails || []);
 }
