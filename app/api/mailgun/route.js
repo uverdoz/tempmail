@@ -1,7 +1,7 @@
 // app/api/mailgun/route.js
-import { kv } from '@vercel/kv';
+export const runtime = "nodejs";
 
-const KEY = 'tempfastmail:emails';
+globalThis.emails = globalThis.emails || [];
 
 export async function POST(req) {
     try {
@@ -15,39 +15,27 @@ export async function POST(req) {
             from: formData.get("from") || formData.get("sender") || "unknown",
             to: toClean,
             subject: formData.get("subject") || "(без темы)",
-            html: formData.get("body-html") || "",
+            html: formData.get("body-html") || formData.get("body-plain") || "",
             text: formData.get("body-plain") || "",
         };
 
-        let emails = await kv.get(KEY) || [];
-        if (!Array.isArray(emails)) emails = [];
+        globalThis.emails.unshift(emailData);
 
-        emails.unshift(emailData);
-        if (emails.length > 80) emails = emails.slice(0, 80);
+        // Оставляем максимум 50 писем
+        if (globalThis.emails.length > 50) {
+            globalThis.emails = globalThis.emails.slice(0, 50);
+        }
 
-        await kv.set(KEY, emails);
+        console.log(`✅ Письмо сохранено (globalThis) → ${toClean} | Всего: ${globalThis.emails.length}`);
 
-        console.log(`✅ [POST] Письмо сохранено! to: ${toClean} | Всего в KV: ${emails.length}`);
-
-        return Response.json({ ok: true, count: emails.length });
+        return Response.json({ ok: true });
     } catch (e) {
-        console.error("❌ [POST] ОШИБКА:", e.message);
-        console.error(e);
-        return Response.json({ ok: false, error: e.message }, { status: 500 });
+        console.error("POST error:", e);
+        return Response.json({ ok: false }, { status: 500 });
     }
 }
 
 export async function GET() {
-    try {
-        const emails = await kv.get(KEY) || [];
-        if (!Array.isArray(emails)) {
-            console.log("❌ [GET] KV вернул не массив");
-            return Response.json([]);
-        }
-        console.log(`📥 [GET] Вернул ${emails.length} писем из KV`);
-        return Response.json(emails);
-    } catch (e) {
-        console.error("❌ [GET] ОШИБКА:", e.message);
-        return Response.json([], { status: 500 });
-    }
+    console.log(`GET вернул ${globalThis.emails?.length || 0} писем`);
+    return Response.json(globalThis.emails || []);
 }
