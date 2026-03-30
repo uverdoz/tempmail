@@ -15,27 +15,27 @@ export async function POST(req) {
             from: formData.get("from") || formData.get("sender") || "unknown",
             to: toClean,
             subject: formData.get("subject") || "(без темы)",
-            html: formData.get("body-html") || formData.get("body-plain") || "",
+            html: formData.get("body-html") || "",
             text: formData.get("body-plain") || "",
         };
 
         globalThis.emails.unshift(emailData);
 
-        // Оставляем максимум 50 писем
         if (globalThis.emails.length > 50) {
             globalThis.emails = globalThis.emails.slice(0, 50);
         }
 
-        console.log(`✅ Письмо сохранено (globalThis) → ${toClean} | Всего: ${globalThis.emails.length}`);
+        console.log(`✅ ПИСЬМО СОХРАНЕНО → ${toClean} | Всего писем: ${globalThis.emails.length}`);
 
         return Response.json({ ok: true });
     } catch (e) {
-        console.error("POST error:", e);
+        console.error("❌ POST ERROR:", e);
         return Response.json({ ok: false }, { status: 500 });
     }
 }
 
 export async function GET() {
-    console.log(`GET вернул ${globalThis.emails?.length || 0} писем`);
+    const count = globalThis.emails ? globalThis.emails.length : 0;
+    console.log(`📥 GET: Вернул ${count} писем`);
     return Response.json(globalThis.emails || []);
 }
