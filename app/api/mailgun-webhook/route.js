@@ -1,32 +1,41 @@
 // app/api/mailgun-webhook/route.js
+import { Redis } from "@upstash/redis";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-globalThis.emails = globalThis.emails || [];
+// Самый надёжный способ инициализации
+const redis = Redis.fromEnv();
+
+const TTL = 60 * 30; // 30 минут — достаточно для temp mail
 
 export async function POST(req) {
     try {
         const formData = await req.formData();
         const toRaw = formData.get("recipient") || formData.get("to") || "";
-        const toClean = String(toRaw).toLowerCase().trim();
+        const to = String(toRaw).toLowerCase().trim().split(",")[0];
+
+        if (!to) {
+            return Response.json({ ok: false, error: "No recipient" }, { status: 400 });
+        }
 
         const emailData = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
             timestamp: Date.now(),
             from: formData.get("from") || "unknown",
-            to: toClean,
+            to,
             subject: formData.get("subject") || "",
             html: formData.get("body-html") || "",
             text: formData.get("body-plain") || "",
         };
 
-        globalThis.emails.unshift(emailData);
+        const key = `emails:${to}`;
 
-        if (globalThis.emails.length > 100) {
-            globalThis.emails = globalThis.emails.slice(0, 100);
-        }
+        await redis.lpush(key, JSON.stringify(emailData));
+        await redis.ltrim(key, 0, 99);     // максимум 100 писем на один адрес
+        await redis.expire(key, TTL);
 
-        console.log(`[OK] Письмо сохранено → ${toClean}`);
+        console.log(`[OK] Saved to Redis → ${to}`);
 
         return Response.json({ ok: true });
     } catch (e) {
@@ -35,7 +44,33 @@ export async function POST(req) {
     }
 }
 
-export async function GET() {
-    console.log(`[GET] Возвращаю ${globalThis.emails.length} писем`);
-    return Response.json(globalThis.emails || []);
+export async function GET(req) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const email = searchParams.get("email")?.toLowerCase().trim();
+
+        if (!email) {
+            return Response.json([]);
+        }
+
+        const key = `emails:${email}`;
+        const rawData = await redis.lrange(key, 0, 99);
+
+        const emails = rawData
+            .map((item) => {
+                try {
+                    return JSON.parse(item);
+                } catch {
+                    return null;
+                }
+            })
+            .filter(Boolean);
+
+        console.log(`[GET] Found ${emails.length} emails for ${email}`);
+
+        return Response.json(emails);
+    } catch (e) {
+        console.error("[ERROR] GET:", e.message);
+        return Response.json([]);
+    }
 }
