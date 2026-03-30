@@ -15,7 +15,7 @@ export async function POST(req) {
             html: formData.get("body-html"),
         };
 
-        console.log("EMAIL:", email);
+        console.log("MAIL:", email);
 
         globalThis.emails.unshift(email);
 
