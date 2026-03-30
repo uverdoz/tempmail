@@ -367,20 +367,19 @@ export default function Home() {
               <p style={{ color: "#666" }}>Выбери письмо</p>
             ) : (
               <>
-                <h3>{selectedMessage.subject}</h3>
+                <h3>{selectedMessage.subject || "(без темы)"}</h3>
 
-                <p style={{ color: "#888" }}>
-                  {typeof selectedMessage.from === "object"
-                    ? selectedMessage.from?.address
+                <p style={{ color: "#888", marginBottom: 15 }}>
+                  От: {typeof selectedMessage.from === "object"
+                    ? selectedMessage.from?.address || selectedMessage.from
                     : selectedMessage.from}
                 </p>
 
                 <div
                   dangerouslySetInnerHTML={{
-                    __html:
-                      selectedMessage.html ||
-                      selectedMessage.text ||
-                      "Пусто"
+                    __html: (selectedMessage.html || selectedMessage.text || "Пусто")
+                      .replace(/http:\/\//gi, "https://")          
+                      .replace(/src=["']http/gi, 'src="https')      
                   }}
                 />
               </>
