@@ -138,21 +138,24 @@ export default function Home() {
       }
 
       // 🔥 MAILGUN — чистая версия
-      // 🔥 MAILGUN / Redis — с подробной отладкой
+      // 🔥 MAILGUN / Redis — максимальная отладка
       if (service === "custom") {
         try {
-          console.log(`[Frontend] Запрашиваю письма для: ${email}`);
+          const cleanEmail = email.toLowerCase().trim();
+          console.log(`[Frontend] Запрашиваю для: "${cleanEmail}"`);
 
-          const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
+          const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(cleanEmail)}`);
 
-          if (!res.ok) {
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
+          console.log(`[Frontend] Ответ сервера status: ${res.status}`);
 
           const data = await res.json();
 
-          console.log(`[Frontend] Получено ${data.length} писем из сервера`);
-          console.log(`[Frontend] Первое письмо:`, data[0] ? data[0] : "нет писем");
+          console.log(`[Frontend] Получено ${data.length} писем`);
+          if (data.length > 0) {
+            console.log(`[Frontend] Первое письмо to:`, data[0].to);
+          } else {
+            console.log(`[Frontend] Нет писем — возможно несоответствие ключа`);
+          }
 
           setMessages(data || []);
         } catch (err) {
