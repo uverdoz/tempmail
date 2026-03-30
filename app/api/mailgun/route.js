@@ -1,39 +1,41 @@
+// app/api/mailgun/route.js
 export const runtime = "nodejs";
 
 globalThis.emails = globalThis.emails || [];
 
+// POST — принимает письмо от Mailgun
 export async function POST(req) {
-    const formData = await req.formData();
+    try {
+        const formData = await req.formData();
 
-    const email = {
-        id: Date.now().toString(),
-        from: formData.get("from"),
-        to: formData.get("recipient"),
-        subject: formData.get("subject"),
-        storageUrl: formData.get("storage-url"), // ВАЖНО
-    };
+        const emailData = {
+            id: Date.now().toString(),
+            timestamp: Date.now(),
+            from: formData.get("from") || formData.get("sender"),
+            to: formData.get("recipient") || formData.get("to"),
+            subject: formData.get("subject") || "",
+            html: formData.get("body-html") || formData.get("body-plain") || "",
+            text: formData.get("body-plain") || "",
+        };
 
-    globalThis.lastEmail = email; // временно
+        // Добавляем новое письмо в начало списка
+        globalThis.emails.unshift(emailData);
 
-    return Response.json({ ok: true });
+        // Ограничиваем количество писем
+        if (globalThis.emails.length > 100) {
+            globalThis.emails.pop();
+        }
+
+        console.log("✅ Email сохранён:", emailData.to, emailData.subject);
+
+        return Response.json({ ok: true, message: "Email received" });
+    } catch (e) {
+        console.error("POST error:", e);
+        return Response.json({ ok: false }, { status: 500 });
+    }
 }
 
+// GET — возвращает все письма (фронт сам отфильтрует)
 export async function GET() {
-    if (!globalThis.lastEmail) return Response.json([]);
-
-    const res = await fetch(globalThis.lastEmail.storageUrl, {
-        headers: {
-            Authorization: "Basic " + Buffer.from("api:YOUR_API_KEY").toString("base64"),
-        },
-    });
-
-    const data = await res.json();
-
-    return Response.json([{
-        id: "1",
-        from: data.from,
-        subject: data.subject,
-        html: data["body-html"],
-        text: data["body-plain"],
-    }]);
+    return Response.json(globalThis.emails || []);
 }
