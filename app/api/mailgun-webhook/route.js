@@ -36,8 +36,7 @@ export async function POST(req) {
             text: formData.get("body-plain") || "",
         };
 
-        // ✅ ФИКС
-        const key = `emails: ${to}`;
+        const key = `emails:${to}`;
 
         await redis.lpush(key, JSON.stringify(email));
         await redis.ltrim(key, 0, 99);
@@ -70,9 +69,13 @@ export async function GET(req) {
             return Response.json([]);
         }
 
-        const key = `emails: ${email}`;
+        const key = `emails:${email}`;
+
+        console.log("GET KEY:", key);
 
         const data = await redis.lrange(key, 0, 50);
+
+        console.log("REDIS DATA:", data);
 
         const parsed = data
             .map((item) => {
