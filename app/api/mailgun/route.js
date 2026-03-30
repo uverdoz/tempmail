@@ -3,23 +3,11 @@ import { kv } from '@vercel/kv';
 
 const KEY = 'tempfastmail:emails';
 
-async function getEmails() {
-    let emails = await kv.get(KEY);
-    if (emails === null) emails = [];
-    if (!Array.isArray(emails)) emails = [];
-    return emails;
-}
-
-async function saveEmails(emails) {
-    await kv.set(KEY, emails);
-}
-
 export async function POST(req) {
     try {
         const formData = await req.formData();
-
         const toRaw = formData.get("recipient") || formData.get("to") || "";
-        const toClean = toRaw.toString().toLowerCase().trim();
+        const toClean = String(toRaw).toLowerCase().trim();
 
         const emailData = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
@@ -27,35 +15,39 @@ export async function POST(req) {
             from: formData.get("from") || formData.get("sender") || "unknown",
             to: toClean,
             subject: formData.get("subject") || "(без темы)",
-            html: formData.get("body-html") || formData.get("body-plain") || "",
+            html: formData.get("body-html") || "",
             text: formData.get("body-plain") || "",
-            // Добавляем сырые данные для отладки
-            rawTo: toRaw,
         };
 
-        let emails = await getEmails();
+        let emails = await kv.get(KEY) || [];
+        if (!Array.isArray(emails)) emails = [];
+
         emails.unshift(emailData);
+        if (emails.length > 80) emails = emails.slice(0, 80);
 
-        if (emails.length > 100) emails = emails.slice(0, 100);
+        await kv.set(KEY, emails);
 
-        await saveEmails(emails);
+        console.log(`✅ [POST] Письмо сохранено! to: ${toClean} | Всего в KV: ${emails.length}`);
 
-        console.log("✅ Письмо сохранено → to:", toClean, "subject:", emailData.subject);
-
-        return Response.json({ ok: true, saved: true });
+        return Response.json({ ok: true, count: emails.length });
     } catch (e) {
-        console.error("POST error:", e);
+        console.error("❌ [POST] ОШИБКА:", e.message);
+        console.error(e);
         return Response.json({ ok: false, error: e.message }, { status: 500 });
     }
 }
 
 export async function GET() {
     try {
-        const emails = await getEmails();
-        console.log("GET returned", emails.length, "emails");
+        const emails = await kv.get(KEY) || [];
+        if (!Array.isArray(emails)) {
+            console.log("❌ [GET] KV вернул не массив");
+            return Response.json([]);
+        }
+        console.log(`📥 [GET] Вернул ${emails.length} писем из KV`);
         return Response.json(emails);
     } catch (e) {
-        console.error("GET error:", e);
+        console.error("❌ [GET] ОШИБКА:", e.message);
         return Response.json([], { status: 500 });
     }
 }
