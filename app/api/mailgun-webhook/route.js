@@ -5,39 +5,39 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  url: process.env.UPSTASH_REDIS_REST_URL || "",
+  token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
 });
 
-const TTL = 60 * 30; // 30 минут — достаточно для temp mail
+const TTL = 60 * 30; // 30 минут
 
 export async function POST(req) {
   try {
     const formData = await req.formData();
     const toRaw = formData.get("recipient") || formData.get("to") || "";
-    const toClean = String(toRaw).toLowerCase().trim().split(",")[0];
+    const to = String(toRaw).toLowerCase().trim().split(",")[0];
 
-    if (!toClean) {
-      return Response.json({ ok: false }, { status: 400 });
+    if (!to) {
+      return Response.json({ ok: false, error: "No recipient" }, { status: 400 });
     }
 
     const emailData = {
       id: Date.now().toString() + Math.random().toString(36).slice(2),
       timestamp: Date.now(),
       from: formData.get("from") || "unknown",
-      to: toClean,
+      to,
       subject: formData.get("subject") || "",
       html: formData.get("body-html") || "",
       text: formData.get("body-plain") || "",
     };
 
-    const key = `emails:${toClean}`;
+    const key = `emails:${to}`;
 
     await redis.lpush(key, JSON.stringify(emailData));
-    await redis.ltrim(key, 0, 99);        // храним максимум 100 писем
+    await redis.ltrim(key, 0, 99);
     await redis.expire(key, TTL);
 
-    console.log(`[OK] Saved to Redis → ${toClean}`);
+    console.log(`[OK] Saved to Redis → ${to}`);
 
     return Response.json({ ok: true });
   } catch (e) {
@@ -49,15 +49,16 @@ export async function POST(req) {
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    let email = searchParams.get("email") || "";
-
-    email = email.toLowerCase().trim();
+    const emailRaw = searchParams.get("email") || "";
+    const email = emailRaw.toLowerCase().trim();
 
     if (!email) {
+      console.log("[GET] Нет email в запросе");
       return Response.json([]);
     }
 
     const key = `emails:${email}`;
+    console.log(`[GET] Запрашиваем ключ: ${key}`);
 
     const rawData = await redis.lrange(key, 0, 99);
 
@@ -71,7 +72,7 @@ export async function GET(req) {
       })
       .filter(Boolean);
 
-    console.log(`[GET] Found ${emails.length} emails for ${email}`);
+    console.log(`[GET] Найдено ${emails.length} писем для ${email}`);
 
     return Response.json(emails);
   } catch (e) {
