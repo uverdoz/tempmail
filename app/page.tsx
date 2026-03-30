@@ -376,10 +376,17 @@ export default function Home() {
                 </p>
 
                 <div
+                  style={{
+                    background: "#0a0a0a",
+                    padding: "15px",
+                    borderRadius: "8px",
+                    border: "1px solid #222",
+                    maxHeight: "320px",
+                    overflowY: "auto"
+                  }}
                   dangerouslySetInnerHTML={{
                     __html: (selectedMessage.html || selectedMessage.text || "Пусто")
-                      .replace(/http:\/\//gi, "https://")          
-                      .replace(/src=["']http/gi, 'src="https')      
+                      .replace(/http:\/\//gi, "https://")
                   }}
                 />
               </>
