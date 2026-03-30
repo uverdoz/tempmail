@@ -1,51 +1,61 @@
 // app/api/mailgun/route.js
 import { kv } from '@vercel/kv';
 
-const KEY = 'tempfastmail:emails'; // все письма в одном ключе
+const KEY = 'tempfastmail:emails';
 
-// Очистка старых писем (старше 30 минут) — чтобы не раздувать KV
-async function cleanup() {
-    const emails = (await kv.get(KEY)) || [];
-    const now = Date.now();
-    const fresh = emails.filter(e => now - e.timestamp < 30 * 60 * 1000);
-    await kv.set(KEY, fresh);
+async function getEmails() {
+    let emails = await kv.get(KEY);
+    if (emails === null) emails = [];
+    if (!Array.isArray(emails)) emails = [];
+    return emails;
+}
+
+async function saveEmails(emails) {
+    await kv.set(KEY, emails);
 }
 
 export async function POST(req) {
     try {
         const formData = await req.formData();
 
+        const toRaw = formData.get("recipient") || formData.get("to") || "";
+        const toClean = toRaw.toString().toLowerCase().trim();
+
         const emailData = {
             id: Date.now().toString() + Math.random().toString(36).slice(2),
             timestamp: Date.now(),
             from: formData.get("from") || formData.get("sender") || "unknown",
-            to: (formData.get("recipient") || formData.get("to") || "").toString().toLowerCase(),
-            subject: formData.get("subject") || "",
+            to: toClean,
+            subject: formData.get("subject") || "(без темы)",
             html: formData.get("body-html") || formData.get("body-plain") || "",
             text: formData.get("body-plain") || "",
+            // Добавляем сырые данные для отладки
+            rawTo: toRaw,
         };
 
-        let emails = (await kv.get(KEY)) || [];
+        let emails = await getEmails();
         emails.unshift(emailData);
 
-        // Оставляем максимум 200 писем
-        if (emails.length > 200) emails = emails.slice(0, 200);
+        if (emails.length > 100) emails = emails.slice(0, 100);
 
-        await kv.set(KEY, emails);
+        await saveEmails(emails);
 
-        // Иногда чистим
-        if (Math.random() < 0.3) await cleanup();
+        console.log("✅ Письмо сохранено → to:", toClean, "subject:", emailData.subject);
 
-        console.log("✅ Письмо сохранено в KV →", emailData.to, emailData.subject);
-
-        return Response.json({ ok: true });
+        return Response.json({ ok: true, saved: true });
     } catch (e) {
         console.error("POST error:", e);
-        return Response.json({ ok: false }, { status: 500 });
+        return Response.json({ ok: false, error: e.message }, { status: 500 });
     }
 }
 
 export async function GET() {
-    const emails = (await kv.get(KEY)) || [];
-    return Response.json(emails);
+    try {
+        const emails = await getEmails();
+        console.log("GET returned", emails.length, "emails");
+        return Response.json(emails);
+    } catch (e) {
+        console.error("GET error:", e);
+        return Response.json([], { status: 500 });
+    }
 }

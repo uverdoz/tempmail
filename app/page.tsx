@@ -106,6 +106,7 @@ export default function Home() {
   };
 
   // ================= GET MESSAGES =================
+  // ================= GET MESSAGES =================
   const getMessages = async () => {
     if (!email) return;
 
@@ -136,29 +137,47 @@ export default function Home() {
         return;
       }
 
-      // 🔥 MAILGUN
+      // 🔥 MAILGUN / custom — ПРОСТОЙ ВАРИАНТ БЕЗ ОШИБОК
       if (service === "custom") {
-        const res = await fetch("/api/mailgun");
-        const data = await res.json();
+        try {
+          const res = await fetch("/api/mailgun");
 
-        console.log("📥 MAILGUN RAW:", data);
-        console.log("📧 CURRENT EMAIL:", email);
+          if (!res.ok) {
+            console.error("Fetch failed:", res.status);
+            setMessages([]);
+            return;
+          }
 
-        // ✅ ФИКС ФИЛЬТРА (главное)
-        const filtered = data.filter((m: any) => {
-          if (!m.to) return false;
+          const data = await res.json();
 
-          return m.to.toLowerCase().includes(email.toLowerCase());
-        });
+          console.log("📥 MAILGUN RAW length:", Array.isArray(data) ? data.length : 0);
+          console.log("📧 CURRENT EMAIL:", email);
 
-        console.log("✅ FILTERED:", filtered);
+          if (Array.isArray(data) && data.length > 0) {
+            console.log("📋 FIRST EMAIL in KV:", data[0]);
+          } else {
+            console.log("📋 No emails in KV or not array");
+          }
 
-        const messagesWithId = filtered.map((m: any, i: number) => ({
-          ...m,
-          id: m.id || `${i}_${Date.now()}`
-        }));
+          const filtered = data.filter((m: any) => {
+            if (!m?.to) return false;
+            const msgTo = String(m.to).toLowerCase().trim();
+            const current = email.toLowerCase().trim();
+            return msgTo === current || msgTo.includes(current);
+          });
 
-        setMessages(messagesWithId);
+          console.log("✅ FILTERED count:", filtered.length);
+
+          const messagesWithId = filtered.map((m: any, i: number) => ({
+            ...m,
+            id: m.id || `msg_${Date.now()}_${i}`
+          }));
+
+          setMessages(messagesWithId);
+        } catch (err) {
+          console.error("Custom mailgun fetch error:", err);
+          setMessages([]);
+        }
         return;
       }
 
