@@ -6,6 +6,8 @@ globalThis.emails = globalThis.emails || [];
 
 export async function POST(req) {
     try {
+        console.log("📨 POST webhook received");
+
         const formData = await req.formData();
         const toRaw = formData.get("recipient") || formData.get("to") || "";
         const toClean = String(toRaw).toLowerCase().trim();
@@ -16,23 +18,27 @@ export async function POST(req) {
             from: formData.get("from") || formData.get("sender") || "unknown",
             to: toClean,
             subject: formData.get("subject") || "(без темы)",
-            html: formData.get("body-html") || "",
+            html: formData.get("body-html") || formData.get("body-plain") || "",
             text: formData.get("body-plain") || "",
         };
 
         globalThis.emails.unshift(emailData);
-        if (globalThis.emails.length > 50) globalThis.emails = globalThis.emails.slice(0, 50);
 
-        console.log(`✅ ПИСЬМО СОХРАНЕНО → ${toClean}`);
+        if (globalThis.emails.length > 100) {
+            globalThis.emails = globalThis.emails.slice(0, 100);
+        }
 
-        return Response.json({ ok: true });
+        console.log(`✅ ПИСЬМО СОХРАНЕНО → ${toClean} | Всего в памяти: ${globalThis.emails.length}`);
+
+        return Response.json({ ok: true, count: globalThis.emails.length });
     } catch (e) {
-        console.error("POST error:", e);
+        console.error("❌ POST ERROR:", e);
         return Response.json({ ok: false }, { status: 500 });
     }
 }
 
 export async function GET() {
-    console.log(`📥 GET: Вернул ${globalThis.emails.length} писем`);
+    const count = globalThis.emails.length;
+    console.log(`📥 GET: Вернул ${count} писем из памяти`);
     return Response.json(globalThis.emails);
 }
