@@ -57,32 +57,35 @@ export async function POST(req) {
 export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
-        const emailRaw = searchParams.get("email") || "";
-
-        const email = emailRaw.toLowerCase().trim();
+        let email = searchParams.get("email") || "";
 
         if (!email) {
-            console.log("[GET] Нет email в запросе");
+            console.log("[GET] Ошибка: email не передан в запросе");
             return Response.json([]);
         }
 
+        // Нормализуем email
+        email = email.toLowerCase().trim();
+
         const key = `emails:${email}`;
 
-        console.log(`[GET] Ищем по ключу: ${key}`);
+        console.log(`[GET] Запрашиваем ключ: ${key}`);
 
         const data = await redis.lrange(key, 0, 99);
+
+        console.log(`[GET] В Redis найдено элементов: ${data.length}`);
 
         const parsed = data
             .map((item) => {
                 try {
                     return JSON.parse(item);
-                } catch {
+                } catch (e) {
                     return null;
                 }
             })
             .filter(Boolean);
 
-        console.log(`[GET] Найдено ${parsed.length} писем для ${email}`);
+        console.log(`[GET] Успешно распарсено ${parsed.length} писем для ${email}`);
 
         return Response.json(parsed);
     } catch (e) {
