@@ -21,7 +21,6 @@ export default function Home() {
       if (service === "mailtm") {
         const domainRes = await fetch("https://api.mail.tm/domains");
         const domainData = await domainRes.json();
-
         const domain = selectedDomain || domainData["hydra:member"][0].domain;
         const address = `${Math.random().toString(36).substring(2, 10)}@${domain}`;
         const password = "12345678";
@@ -51,16 +50,14 @@ export default function Home() {
         setToken("");
       }
 
-      // 🔥 НОВОЕ (ТВОЙ СЕРВИС)
       if (service === "custom") {
         const login = Math.random().toString(36).substring(2, 10);
-        const domain = "mail.tempfastmail.site"; // ← ВОТ ТАК
+        const domain = "mail.tempfastmail.site";
         setEmail(`${login}@${domain}`);
       }
 
       setMessages([]);
       setSelectedMessage(null);
-
     } catch {
       console.log("create email error");
     }
@@ -72,40 +69,27 @@ export default function Home() {
       if (service === "mailtm") {
         const res = await fetch("https://api.mail.tm/domains");
         const data = await res.json();
-
         const list = data["hydra:member"].map((d: any) => d.domain);
-
         setDomains(list);
         setSelectedDomain(list[0]);
       }
 
       if (service === "1secmail") {
-        const list = [
-          "1secmail.com",
-          "1secmail.net",
-          "1secmail.org",
-        ];
-
+        const list = ["1secmail.com", "1secmail.net", "1secmail.org"];
         setDomains(list);
         setSelectedDomain(list[0]);
       }
 
-      // ✅ MAILGUN
       if (service === "custom") {
-        const list = [
-          "mail.tempfastmail.site"
-        ];
-
+        const list = ["mail.tempfastmail.site"];
         setDomains(list);
         setSelectedDomain(list[0]);
       }
-
     } catch {
       console.log("domains error");
     }
   };
 
-  // ================= GET MESSAGES =================
   // ================= GET MESSAGES =================
   const getMessages = async () => {
     if (!email) return;
@@ -113,13 +97,9 @@ export default function Home() {
     try {
       if (service === "mailtm") {
         if (!token) return;
-
         const res = await fetch("https://api.mail.tm/messages", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setMessages(data["hydra:member"] || []);
         return;
@@ -127,38 +107,23 @@ export default function Home() {
 
       if (service === "1secmail") {
         const [login, domain] = email.split("@");
-
         const res = await fetch(
           `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`
         );
-
         const data = await res.json();
         setMessages(data || []);
         return;
       }
 
-      // 🔥 TempFastMail (Postgres) 
       if (service === "custom") {
-        try {
-          const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
-
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-          const data = await res.json();
-
-          // Логи оставляем только когда действительно что-то меняется
-          if (data.length !== messages.length) {
-            console.log(`[Frontend] Получено ${data.length} писем для ${email}`);
-          }
-
-          setMessages(data || []);
-        } catch (err) {
-          console.error("[Frontend] Ошибка получения писем:", err);
-          setMessages([]);
+        const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.length !== messages.length) {
+          console.log(`[Frontend] Получено ${data.length} писем для ${email}`);
         }
-        return;
+        setMessages(data || []);
       }
-
     } catch (e) {
       console.log("get messages error", e);
     }
@@ -169,13 +134,9 @@ export default function Home() {
     try {
       if (service === "mailtm") {
         if (!token) return;
-
         const res = await fetch(`https://api.mail.tm/messages/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
         const data = await res.json();
         setSelectedMessage(data);
         return;
@@ -183,23 +144,18 @@ export default function Home() {
 
       if (service === "1secmail") {
         const [login, domain] = email.split("@");
-
         const res = await fetch(
           `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`
         );
-
         const data = await res.json();
         setSelectedMessage(data);
         return;
       }
 
-      // 🔥 MAILGUN
       if (service === "custom") {
         const msg = messages.find((m) => m.id === id);
         setSelectedMessage(msg);
-        return;
       }
-
     } catch (e) {
       console.log("open message error", e);
     }
@@ -216,13 +172,28 @@ export default function Home() {
 
     getMessages();
     const interval = setInterval(getMessages, 5000);
-
     return () => clearInterval(interval);
   }, [token, email, service]);
 
   // ================= UI =================
   return (
     <div style={wrapper}>
+
+      {/* ================= ШАПКА ================= */}
+      <nav style={navbar}>
+        <div style={navContainer}>
+          <div style={logoContainer}>
+            TempFastMail
+          </div>
+
+          <div style={navRight}>
+            <button style={langBtn}>🇷🇺 RU</button>
+            <a href="#" style={navLink}>Privacy</a>
+            <a href="#" style={navLink}>Terms</a>
+            <a href="#" style={navLink}>About</a>
+          </div>
+        </div>
+      </nav>
 
       <div style={container}>
 
@@ -247,7 +218,6 @@ export default function Home() {
               {email}
             </div>
 
-            {/* 🔥 СЕЛЕКТОР СЕРВИСА */}
             <select
               value={service}
               onChange={(e) => setService(e.target.value as any)}
@@ -264,7 +234,6 @@ export default function Home() {
               <option value="custom">TempFastMail</option>
             </select>
 
-            {/* ДОМЕНЫ */}
             <select
               value={selectedDomain}
               onChange={(e) => setSelectedDomain(e.target.value)}
@@ -319,15 +288,11 @@ export default function Home() {
         </div>
 
         <div style={grid}>
-
           <div style={list}>
-            {messages.length === 0 && (
-              <p style={{ color: "#666" }}>Нет писем</p>
-            )}
+            {messages.length === 0 && <p style={{ color: "#666" }}>Нет писем</p>}
 
             {messages.map((msg, index) => {
               const active = selectedMessage?.id === msg.id;
-
               return (
                 <div
                   key={msg.id}
@@ -338,25 +303,15 @@ export default function Home() {
                     marginBottom: 10,
                     cursor: "pointer",
                     background: active ? "#141414" : "transparent",
-                    boxShadow: active
-                      ? "0 0 25px rgba(255,80,80,0.25)"
-                      : "none",
+                    boxShadow: active ? "0 0 25px rgba(255,80,80,0.25)" : "none",
                     border: active ? "1px solid rgba(255,80,80,0.4)" : "1px solid #222",
                     transition: "0.2s",
-                    animation: "fadeInUp 0.3s ease forwards",
-                    animationDelay: `${index * 0.03}s`,
-                    opacity: 0,
                   }}
                 >
                   <b style={{ fontSize: 13 }}>
-                    {typeof msg.from === "object"
-                      ? msg.from?.address
-                      : msg.from}
+                    {typeof msg.from === "object" ? msg.from?.address : msg.from}
                   </b>
-
-                  <p style={subject}>
-                    {msg.subject}
-                  </p>
+                  <p style={subject}>{msg.subject}</p>
                 </div>
               );
             })}
@@ -368,13 +323,11 @@ export default function Home() {
             ) : (
               <>
                 <h3>{selectedMessage.subject || "(без темы)"}</h3>
-
                 <p style={{ color: "#888", marginBottom: 15 }}>
                   От: {typeof selectedMessage.from === "object"
                     ? selectedMessage.from?.address || selectedMessage.from
                     : selectedMessage.from}
                 </p>
-
                 <div
                   style={{
                     background: "#0a0a0a",
@@ -392,9 +345,7 @@ export default function Home() {
               </>
             )}
           </div>
-
         </div>
-
       </div>
 
       <style jsx global>{`
@@ -402,23 +353,7 @@ export default function Home() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes bgMove {
-          0% { background-position: 0% 0%, 100% 100%; }
-          50% { background-position: 20% 10%, 80% 90%; }
-          100% { background-position: 0% 0%, 100% 100%; }
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
       `}</style>
-
     </div>
   );
 }
@@ -426,23 +361,59 @@ export default function Home() {
 // ================= STYLES =================
 const wrapper: React.CSSProperties = {
   minHeight: "100vh",
-  animation: "bgMove 10s ease infinite",
-  background: `
-    radial-gradient(circle at 20% 10%, rgba(255, 0, 0, 0.06), transparent 70%),
-    radial-gradient(circle at 80% 90%, rgba(255, 0, 0, 0.04), transparent 0%),
-    #050505
-  `,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: 20,
+  background: "#050505",
   color: "white",
   fontFamily: "Arial"
 };
 
+const navbar: React.CSSProperties = {
+  backgroundColor: "#0a0a0a",
+  borderBottom: "1px solid #222",
+  padding: "16px 30px",
+  position: "sticky",
+  top: 0,
+  zIndex: 100,
+};
+
+const navContainer: React.CSSProperties = {
+  maxWidth: 1100,
+  margin: "0 auto",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const logoContainer: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 700,
+};
+
+const navRight: React.CSSProperties = {
+  display: "flex",
+  gap: 25,
+  alignItems: "center",
+};
+
+const langBtn: React.CSSProperties = {
+  background: "#111",
+  color: "white",
+  border: "1px solid #333",
+  padding: "8px 14px",
+  borderRadius: 8,
+  cursor: "pointer",
+};
+
+const navLink: React.CSSProperties = {
+  color: "#aaa",
+  textDecoration: "none",
+  fontSize: 15,
+};
+
 const container: React.CSSProperties = {
   width: "100%",
-  maxWidth: 1000
+  maxWidth: 1000,
+  margin: "40px auto",
+  padding: "0 20px"
 };
 
 const logo: React.CSSProperties = {
@@ -553,60 +524,4 @@ const hoverGlow = (e: any) => {
 const hoverReset = (e: any) => {
   e.currentTarget.style.boxShadow = "none";
   e.currentTarget.style.transform = "translateY(0)";
-
-
-  // ================= НОВЫЕ СТИЛИ ДЛЯ ШАПКИ =================
-  const navbar: React.CSSProperties = {
-    backgroundColor: "#0a0a0a",
-    borderBottom: "1px solid #222",
-    padding: "16px 20px",
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-  };
-
-  const navContainer: React.CSSProperties = {
-    maxWidth: 1000,
-    margin: "0 auto",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  };
-
-  const logoContainer: React.CSSProperties = {
-    fontSize: 26,
-    fontWeight: 700,
-    letterSpacing: "-0.5px",
-    color: "#fff",
-  };
-
-  const navRight: React.CSSProperties = {
-    display: "flex",
-    gap: 24,
-    alignItems: "center",
-  };
-
-  const langBtn: React.CSSProperties = {
-    background: "#111",
-    color: "white",
-    border: "1px solid #333",
-    padding: "8px 14px",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontSize: 14,
-  };
-
-  const navLink: React.CSSProperties = {
-    color: "#aaa",
-    textDecoration: "none",
-    fontSize: 15,
-  };
-
-  const navLinkHover = (e: any) => {
-    e.currentTarget.style.color = "#fff";
-  };
-
-  const navLinkLeave = (e: any) => {
-    e.currentTarget.style.color = "#aaa";
-  };
 };
