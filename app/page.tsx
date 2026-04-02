@@ -8,7 +8,6 @@ export default function Home() {
   const [email, setEmail] = useState<string>("");
   const [token, setToken] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -93,7 +92,6 @@ export default function Home() {
 
   // ================= GET MESSAGES =================
   const getMessages = async () => {
-    setLoading(true);
     if (!email) return;
 
     try {
@@ -104,7 +102,6 @@ export default function Home() {
         });
         const data = await res.json();
         setMessages(data["hydra:member"] || []);
-        setLoading(false);
         return;
       }
 
@@ -129,7 +126,6 @@ export default function Home() {
       }
     } catch (e) {
       console.log("get messages error", e);
-      setLoading(false);
     }
   };
 
@@ -289,18 +285,9 @@ export default function Home() {
         <div className="grid grid-cols-3 gap-6">
           <div className="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-xl h-[420px] overflow-y-auto">
 
-            {loading ? (
-              <div className="space-y-2">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-14 rounded-xl bg-white/5 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : messages.length === 0 ? (
+            {messages.length === 0 && (
               <p className="text-gray-500 text-sm">Нет писем</p>
-            ) : null}
+            )}
 
             {messages.map((msg) => {
               const active = selectedMessage?.id === msg.id;
