@@ -8,6 +8,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="bg-black text-white">
+        
         {children}
       </body>
     </html>

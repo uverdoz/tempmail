@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { FiCopy, FiRefreshCw } from "react-icons/fi";
+import Link from "next/link";
 
 export default function Home() {
 
@@ -69,7 +70,7 @@ export default function Home() {
 
           {/* LOGO */}
           <div className="text-2xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-300 to-gray-500 bg-clip-text text-transparent cursor-pointer">
-            TempFastMail
+            TempMail.Site
           </div>
 
           {/* RIGHT */}
@@ -79,17 +80,17 @@ export default function Home() {
               🇷🇺 RU
             </button>
 
-            <a className="text-gray-400 hover:text-white transition duration-200">
+            <Link href="/privacy" className="text-gray-400 hover:text-white transition duration-200">
               Privacy
-            </a>
+            </Link>
 
-            <a className="text-gray-400 hover:text-white transition duration-200">
+            <Link href="/terms" className="text-gray-400 hover:text-white transition duration-200">
               Terms
-            </a>
+            </Link>
 
-            <a className="text-gray-400 hover:text-white transition duration-200">
+            <Link href="/about" className="text-gray-400 hover:text-white transition duration-200">
               About
-            </a>
+            </Link>
 
           </div>
         </div>
@@ -214,140 +215,212 @@ ${active
       </div>
 
       {/* ================= SEO CONTENT ================= */}
-      <div className="max-w-6xl mx-auto px-6 mt-20 space-y-16">
+      
+      <div className="max-w-6xl mx-auto px-6 mt-20 space-y-20 text-gray-400 text-sm">
 
-        {/* HERO INFO */}
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-3xl font-semibold text-white mb-4">
-            Бесплатная временная почта
-          </h2>
-          <p className="text-gray-400">
-            Получайте письма мгновенно без регистрации. Защитите свою основную почту от спама.
+        {/* HERO */}
+        <section className="max-w-3xl mx-auto text-center">
+          <h1 className="text-2xl md:text-4xl font-semibold text-white tracking-tight">
+            Временная почта без регистрации
+          </h1>
+          <p className="leading-relaxed text-gray-400">
+            TempMail.Site — это сервис одноразовой электронной почты, позволяющий получать
+            письма без создания аккаунта. Используйте временный email для регистрации,
+            получения кодов подтверждения и защиты основной почты от спама.
           </p>
-        </div>
+        </section>
 
         {/* FEATURES */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <section className="grid md:grid-cols-3 gap-6">
 
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-            <h3 className="text-white mb-2 font-semibold">Мгновенно</h3>
-            <p className="text-gray-400 text-sm">
-              Письма приходят сразу без обновления страницы.
+          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+            <h3 className="text-white font-medium mb-2">
+              Мгновенное получение писем
+            </h3>
+            <p className="leading-relaxed">
+              Все входящие сообщения отображаются в реальном времени без необходимости обновления страницы.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-            <h3 className="text-white mb-2 font-semibold">Анонимно</h3>
-            <p className="text-gray-400 text-sm">
-              Без регистрации и без личных данных.
+          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+            <h3 className="text-white font-medium mb-2">
+              Полная анонимность
+            </h3>
+            <p className="leading-relaxed">
+              Использование сервиса не требует регистрации и ввода персональных данных.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
-            <h3 className="text-white mb-2 font-semibold">Без спама</h3>
-            <p className="text-gray-400 text-sm">
-              Ваша основная почта останется чистой.
+          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+            <h3 className="text-white font-medium mb-2">
+              Защита от спама
+            </h3>
+            <p className="leading-relaxed">
+              Временный email позволяет избежать нежелательных писем на основной почтовый ящик.
             </p>
           </div>
 
-        </div>
+        </section>
 
-        {/* TEXT BLOCK UPGRADED */}
-        <div className="grid md:grid-cols-2 gap-6">
+        {/* HOW IT WORKS */}
+        <section className="space-y-6">
+          <h2 className="text-2xl text-white font-semibold">
+            Как работает временная почта
+          </h2>
 
-          {/* HOW IT WORKS */}
-          <div className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg">
-                ⚙️
-              </div>
-              <h2 className="text-white text-lg font-semibold">
-                Как это работает
-              </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+
+            <div className="p-6 rounded-xl border border-white/10">
+              <div className="text-gray-500 text-xs mb-2">Шаг 1</div>
+              <h4 className="text-white mb-2 font-medium">
+                Создание адреса
+              </h4>
+              <p>
+                Сервис автоматически генерирует временный email адрес при нажатии кнопки.
+              </p>
             </div>
 
-            <p className="text-gray-400 text-sm leading-relaxed">
-              TempFastMail автоматически создаёт временный email адрес.
-              Все входящие письма отображаются мгновенно прямо на странице,
-              без регистрации и лишних действий.
-            </p>
-
-            <div className="mt-4 text-xs text-gray-500">
-              ⏱ Обновление каждые 5 секунд
+            <div className="p-6 rounded-xl border border-white/10">
+              <div className="text-gray-500 text-xs mb-2">Шаг 2</div>
+              <h4 className="text-white mb-2 font-medium">
+                Использование email
+              </h4>
+              <p>
+                Используйте адрес для регистрации на сайтах или получения кодов подтверждения.
+              </p>
             </div>
+
+            <div className="p-6 rounded-xl border border-white/10">
+              <div className="text-gray-500 text-xs mb-2">Шаг 3</div>
+              <h4 className="text-white mb-2 font-medium">
+                Получение писем
+              </h4>
+              <p>
+                Все входящие сообщения отображаются на странице сразу после получения.
+              </p>
+            </div>
+
           </div>
+        </section>
 
-          {/* WHY USE */}
-          <div className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300">
+        {/* USE CASES */}
+        <section className="space-y-6">
+          <h2 className="text-2xl text-white font-semibold">
+            Применение временной почты
+          </h2>
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg">
-                🚀
-              </div>
-              <h2 className="text-white text-lg font-semibold">
-                Зачем использовать
-              </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+
+            <div className="p-6 rounded-xl border border-white/10">
+              <h3 className="text-white mb-2 font-medium">
+                Регистрация на веб-сайтах
+              </h3>
+              <p>
+                Используйте временный email для создания аккаунтов без риска получения рекламных рассылок.
+              </p>
             </div>
 
-            <ul className="space-y-3 text-sm text-gray-400">
-
-              <li className="flex items-center gap-2">
-                <span className="text-white">✔</span>
-                Регистрация без спама
-              </li>
-
-              <li className="flex items-center gap-2">
-                <span className="text-white">✔</span>
+            <div className="p-6 rounded-xl border border-white/10">
+              <h3 className="text-white mb-2 font-medium">
                 Получение кодов подтверждения
-              </li>
+              </h3>
+              <p>
+                Быстро получайте email-коды для входа и регистрации в сервисах.
+              </p>
+            </div>
 
-              <li className="flex items-center gap-2">
-                <span className="text-white">✔</span>
-                Тестирование сервисов
-              </li>
+            <div className="p-6 rounded-xl border border-white/10">
+              <h3 className="text-white mb-2 font-medium">
+                Тестирование приложений
+              </h3>
+              <p>
+                Удобный инструмент для разработчиков при тестировании регистраций и email-уведомлений.
+              </p>
+            </div>
 
-              <li className="flex items-center gap-2">
-                <span className="text-white">✔</span>
-                Анонимность и защита данных
-              </li>
-
-            </ul>
-
-            <div className="mt-4 text-xs text-gray-500">
-              🔒 Без регистрации
+            <div className="p-6 rounded-xl border border-white/10">
+              <h3 className="text-white mb-2 font-medium">
+                Защита личных данных
+              </h3>
+              <p>
+                Скрывайте основной email при работе с незнакомыми или ненадежными сервисами.
+              </p>
             </div>
 
           </div>
+        </section>
 
-        </div>
+        {/* FAQ */}
+        <section className="space-y-6">
+          <h2 className="text-2xl text-white font-semibold">
+            Часто задаваемые вопросы
+          </h2>
+
+          <div className="space-y-3">
+
+            <div className="p-5 rounded-xl border border-white/10">
+              <h3 className="text-white font-medium mb-1">
+                Сервис является бесплатным?
+              </h3>
+              <p>Да, использование TempMail.Site полностью бесплатно.</p>
+            </div>
+
+            <div className="p-5 rounded-xl border border-white/10">
+              <h3 className="text-white font-medium mb-1">
+                Как долго хранится почта?
+              </h3>
+              <p>
+                Письма сохраняются временно и автоматически удаляются через определённый промежуток времени.
+              </p>
+            </div>
+
+            <div className="p-5 rounded-xl border border-white/10">
+              <h3 className="text-white font-medium mb-1">
+                Требуется ли регистрация?
+              </h3>
+              <p>
+                Нет, сервис работает без создания аккаунта и ввода личных данных.
+              </p>
+            </div>
+
+          </div>
+        </section>
+
       </div>
       {/* ================= FOOTER ================= */}
-      <footer className="mt-16 border-t border-white/10 pt-10 pb-6 text-sm text-gray-400">
-        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+      <footer className="mt-20 border-t border-white/10 pt-12 pb-8 text-sm text-gray-400">
 
-          {/* ABOUT */}
-          <div>
-            <h3 className="text-white mb-3 font-semibold">TempFastMail</h3>
-            <p>
-              TempFastMail — это сервис временной почты для регистрации на сайтах,
-              получения кодов и защиты вашей основной почты от спама.
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12">
+
+          {/* LEFT */}
+          <div className="space-y-3">
+            <h3 className="text-white text-lg font-semibold">
+              TempMail.Site
+            </h3>
+            <p className="leading-relaxed max-w-md">
+              TempMail.Site — это сервис временной почты для регистрации на сайтах,
+              получения кодов подтверждения и защиты вашей основной почты от спама.
             </p>
           </div>
 
-          {/* INFO */}
-          <div>
-            <h3 className="text-white mb-3 font-semibold">Как работает</h3>
-            <p>
-              Просто нажмите "Новая почта", используйте email и получайте письма мгновенно.
-              Все письма автоматически удаляются через некоторое время.
+          {/* RIGHT */}
+          <div className="space-y-3 md:pl-10 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0">
+            <h3 className="text-white text-lg font-semibold">
+              Как работает
+            </h3>
+            <p className="leading-relaxed max-w-md">
+              Нажмите "Новая почта", используйте созданный email и получайте письма
+              мгновенно. Все сообщения автоматически удаляются через некоторое время.
             </p>
           </div>
 
         </div>
 
-        <div className="text-center mt-10 text-gray-500 text-xs">
-          © {new Date().getFullYear()} TempFastMail. Create by AVKAD
+        {/* BOTTOM */}
+        <div className="text-center mt-12 text-gray-500 text-xs">
+          © {new Date().getFullYear()} TempMail.Site. Create by AVKAD
         </div>
+
       </footer>
     </div>
   );
