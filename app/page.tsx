@@ -8,6 +8,7 @@ export default function Home() {
   const [email, setEmail] = useState<string>("");
   const [token, setToken] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [spinning, setSpinning] = useState(false);
@@ -92,6 +93,7 @@ export default function Home() {
 
   // ================= GET MESSAGES =================
   const getMessages = async () => {
+    setLoading(true);
     if (!email) return;
 
     try {
@@ -102,6 +104,7 @@ export default function Home() {
         });
         const data = await res.json();
         setMessages(data["hydra:member"] || []);
+        setLoading(false);
         return;
       }
 
@@ -126,6 +129,7 @@ export default function Home() {
       }
     } catch (e) {
       console.log("get messages error", e);
+      setLoading(false);
     }
   };
 
@@ -180,54 +184,61 @@ export default function Home() {
     <div style={wrapper}>
 
       {/* ================= ШАПКА ================= */}
-      <nav style={navbar}>
-        <div style={navContainer}>
-          <div style={logoContainer}>
+      <nav className="sticky top-0 z-50 backdrop-blur-xl bg-black/60 border-b border-white/10">
+        <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+
+          {/* LOGO */}
+          <div className="text-2xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-300 to-gray-500 bg-clip-text text-transparent cursor-pointer">
             TempFastMail
           </div>
 
-          <div style={navRight}>
-            <button style={langBtn}>🇷🇺 RU</button>
-            <a href="#" style={navLink}>Privacy</a>
-            <a href="#" style={navLink}>Terms</a>
-            <a href="#" style={navLink}>About</a>
+          {/* RIGHT */}
+          <div className="flex items-center gap-6">
+
+            <button className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-all duration-200">
+              🇷🇺 RU
+            </button>
+
+            <a className="text-gray-400 hover:text-white transition duration-200">
+              Privacy
+            </a>
+
+            <a className="text-gray-400 hover:text-white transition duration-200">
+              Terms
+            </a>
+
+            <a className="text-gray-400 hover:text-white transition duration-200">
+              About
+            </a>
+
           </div>
         </div>
       </nav>
 
-      <div style={container}>
+      <div className="max-w-6xl mx-auto px-6 mt-10">
 
-        <h1 style={logo}>
-          TempFastMail
-        </h1>
+        <div className="relative bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-xl shadow-lg mb-6">
 
-        <div style={emailBlock}>
-
-          <div style={row}>
+          <div className="flex items-center gap-3">
 
             <button
               onClick={createEmail}
-              style={newMailBtn}
-              onMouseEnter={hoverMove}
-              onMouseLeave={hoverReset}
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm"
             >
               Новая почта
             </button>
 
-            <div style={emailStyle}>
-              {email}
-            </div>
+            <input
+              value={email}
+              readOnly
+              placeholder="email появится здесь..."
+              className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-500"
+            />
 
             <select
               value={service}
               onChange={(e) => setService(e.target.value as any)}
-              style={{
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: 8,
-                padding: "13px 3px"
-              }}
+              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
             >
               <option value="mailtm">mail.tm</option>
               <option value="1secmail">1secmail</option>
@@ -237,18 +248,10 @@ export default function Home() {
             <select
               value={selectedDomain}
               onChange={(e) => setSelectedDomain(e.target.value)}
-              style={{
-                background: "#111",
-                color: "white",
-                border: "1px solid #333",
-                borderRadius: 8,
-                padding: "13px 3px"
-              }}
+              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
             >
               {domains.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
+                <option key={d} value={d}>{d}</option>
               ))}
             </select>
 
@@ -258,9 +261,7 @@ export default function Home() {
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
-              style={iconBtn}
-              onMouseEnter={hoverMove}
-              onMouseLeave={hoverReset}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition"
             >
               <FiCopy />
             </button>
@@ -271,53 +272,65 @@ export default function Home() {
                 getMessages();
                 setTimeout(() => setSpinning(false), 700);
               }}
-              style={iconBtn}
-              onMouseEnter={hoverGlow}
-              onMouseLeave={hoverReset}
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition"
             >
-              <FiRefreshCw
-                style={{
-                  animation: spinning ? "spin 0.7s linear" : "none"
-                }}
-              />
+              <FiRefreshCw className={spinning ? "animate-spin" : ""} />
             </button>
 
           </div>
 
-          {copied && <div style={toast}>Скопировано</div>}
+          {copied && (
+            <div className="absolute -top-8 right-2 text-xs bg-black border border-white/10 px-2 py-1 rounded">
+              Скопировано
+            </div>
+          )}
         </div>
 
-        <div style={grid}>
-          <div style={list}>
-            {messages.length === 0 && <p style={{ color: "#666" }}>Нет писем</p>}
+        <div className="grid grid-cols-3 gap-6">
+          <div className="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-xl h-[420px] overflow-y-auto">
 
-            {messages.map((msg, index) => {
+            {loading ? (
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-14 rounded-xl bg-white/5 animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : messages.length === 0 ? (
+              <p className="text-gray-500 text-sm">Нет писем</p>
+            ) : null}
+
+            {messages.map((msg) => {
               const active = selectedMessage?.id === msg.id;
+
               return (
                 <div
                   key={msg.id}
                   onClick={() => openMessage(msg.id)}
-                  style={{
-                    padding: 10,
-                    borderRadius: 10,
-                    marginBottom: 10,
-                    cursor: "pointer",
-                    background: active ? "#141414" : "transparent",
-                    boxShadow: active ? "0 0 25px rgba(255,80,80,0.25)" : "none",
-                    border: active ? "1px solid rgba(255,80,80,0.4)" : "1px solid #222",
-                    transition: "0.2s",
-                  }}
+                  className={`p-3 rounded-xl mb-2 cursor-pointer transition-all duration-200 animate-fadeIn
+${active
+                      ? "bg-white/10 border border-white/20"
+                      : "hover:bg-white/5 border border-transparent"
+                    }`}
                 >
-                  <b style={{ fontSize: 13 }}>
-                    {typeof msg.from === "object" ? msg.from?.address : msg.from}
-                  </b>
-                  <p style={subject}>{msg.subject}</p>
+                  <div className="text-xs text-gray-400 truncate">
+                    {typeof msg.from === "object"
+                      ? msg.from?.address
+                      : msg.from}
+                  </div>
+
+                  <div className="text-sm text-white truncate mt-1">
+                    {msg.subject || "(без темы)"}
+                  </div>
                 </div>
               );
             })}
+
           </div>
 
-          <div style={messageBox}>
+          <div className="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xl h-[420px] overflow-y-auto">
             {!selectedMessage ? (
               <p style={{ color: "#666" }}>Выбери письмо</p>
             ) : (
@@ -347,13 +360,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-      <style jsx global>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
@@ -364,49 +370,6 @@ const wrapper: React.CSSProperties = {
   background: "#050505",
   color: "white",
   fontFamily: "Arial"
-};
-
-const navbar: React.CSSProperties = {
-  backgroundColor: "#0a0a0a",
-  borderBottom: "1px solid #222",
-  padding: "16px 30px",
-  position: "sticky",
-  top: 0,
-  zIndex: 100,
-};
-
-const navContainer: React.CSSProperties = {
-  maxWidth: 1100,
-  margin: "0 auto",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const logoContainer: React.CSSProperties = {
-  fontSize: 28,
-  fontWeight: 700,
-};
-
-const navRight: React.CSSProperties = {
-  display: "flex",
-  gap: 25,
-  alignItems: "center",
-};
-
-const langBtn: React.CSSProperties = {
-  background: "#111",
-  color: "white",
-  border: "1px solid #333",
-  padding: "8px 14px",
-  borderRadius: 8,
-  cursor: "pointer",
-};
-
-const navLink: React.CSSProperties = {
-  color: "#aaa",
-  textDecoration: "none",
-  fontSize: 15,
 };
 
 const container: React.CSSProperties = {

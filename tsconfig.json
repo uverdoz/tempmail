@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/api/mailgun/route.js"  ],
+, "app/api/mailgun/route.js", "app/i18n/request.ts.bak", "app/i18n/navigation.ts.bak"  ],
   "exclude": ["node_modules"]
 }
