@@ -1,52 +1,145 @@
 export default function Privacy() {
     return (
-        <div className="min-h-screen bg-[#050505] text-gray-300 px-6 py-16 max-w-4xl mx-auto">
+        <main
+            style={{
+                padding: "60px 20px",
+                display: "flex",
+                justifyContent: "center",
+            }}
+        >
+            <div
+                style={{
+                    maxWidth: "900px",
+                    width: "100%",
+                    background: "rgba(255,255,255,0.02)",
+                    borderRadius: "16px",
+                    padding: "40px",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                }}
+            >
+                <h1 style={{ fontSize: "32px", marginBottom: "10px" }}>
+                    Privacy Policy
+                </h1>
 
-            <h1 className="text-3xl text-white mb-8 font-semibold">
-                Privacy Policy
-            </h1>
+                <p style={{ opacity: 0.6, marginBottom: "30px" }}>
+                    Last updated: 2026
+                </p>
 
-            <p className="mb-6 leading-relaxed">
-                TempMail.Site provides a temporary email service.
-                We respect the privacy of our users and strive to ensure maximum anonymity when using our service.
-            </p>
+                {/* SECTION */}
+                <Section title="1. Introduction">
+                    TempFastMail respects your privacy and is committed to protecting your
+                    data. This Privacy Policy explains how our temporary email service
+                    works and what information is (and is not) collected.
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">1. Information collection</h2>
-            <p className="mb-6">
-                We do not require registration and do not collect personal user information, such as name, email address, or phone number.
-            </p>
+                <Section title="2. No Personal Data Collection">
+                    We do not require registration and do not collect personally
+                    identifiable information such as your name, phone number, or address.
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">2. Temporary email addresses</h2>
-            <p className="mb-6">
-                All email addresses created through the service are temporary and not linked to the user's identity.
-            </p>
+                <Section title="3. Temporary Email Transparency">
+                    All generated email addresses are public. Messages sent to these
+                    addresses may be accessible by anyone who knows the address.
+                    <br />
+                    <br />
+                    <strong>
+                        Do not use this service for sensitive or private communication.
+                    </strong>
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">3. Storing messages</h2>
-            <p className="mb-6">
-                Incoming messages are stored for a limited time and are automatically deleted.
-                We do not guarantee the security of your messages.
-            </p>
+                <Section title="4. Automatically Collected Data">
+                    We may collect basic technical data:
+                    <ul>
+                        <li>IP address</li>
+                        <li>Browser type</li>
+                        <li>Device type</li>
+                        <li>Pages visited</li>
+                        <li>Time spent on the site</li>
+                    </ul>
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">4. Cookies</h2>
-            <p className="mb-6">
-                We may use cookies to improve site performance and analytics.
-            </p>
+                <Section title="5. Cookies">
+                    Cookies are used to improve user experience and understand how the
+                    service is used.
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">5. Third-party services</h2>
-            <p className="mb-6">
-                We may use third-party services, including analytics tools and advertising networks (such as Google Ads).
-            </p>
+                <Section title="6. Analytics">
+                    We use analytics tools (like Vercel Analytics) to measure traffic and
+                    performance in an anonymous way.
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">6. Safety</h2>
-            <p className="mb-6">
-                We take measures to protect data, but we cannot guarantee the absolute security of information.
-            </p>
+                <Section title="7. Third-Party Services">
+                    We use trusted providers such as Mailgun to process incoming emails.
+                    These services operate under their own privacy policies.
+                </Section>
 
-            <h2 className="text-xl text-white mt-8 mb-3">7. Policy changes</h2>
-            <p>
-                We may update this policy. Changes will be posted on this page.
-            </p>
+                <Section title="8. Data Retention">
+                    Emails are stored temporarily and automatically deleted after a short
+                    period.
+                </Section>
 
+                <Section title="9. Security">
+                    We apply reasonable security measures, but no system is 100% secure.
+                </Section>
+
+                <Section title="10. Children's Privacy">
+                    This service is not intended for users under 13.
+                </Section>
+
+                <Section title="11. Updates">
+                    We may update this policy at any time. Changes will appear on this page.
+                </Section>
+
+                <Section title="12. Contact">
+                    contact@tempfastmail.site
+                </Section>
+
+                <div
+                    style={{
+                        marginTop: "40px",
+                        paddingTop: "20px",
+                        borderTop: "1px solid rgba(255,255,255,0.08)",
+                        opacity: 0.6,
+                        fontSize: "14px",
+                    }}
+                >
+                    This policy is provided to comply with Google AdSense and general data
+                    protection standards.
+                </div>
+            </div>
+        </main>
+    );
+}
+
+/* 🔥 КРАСИВЫЙ КОМПОНЕНТ СЕКЦИИ */
+function Section({
+    title,
+    children,
+}: {
+    title: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <div style={{ marginBottom: "30px" }}>
+            <h2
+                style={{
+                    fontSize: "20px",
+                    marginBottom: "10px",
+                    color: "#fff",
+                }}
+            >
+                {title}
+            </h2>
+
+            <div
+                style={{
+                    opacity: 0.8,
+                    lineHeight: "1.7",
+                    fontSize: "15px",
+                }}
+            >
+                {children}
+            </div>
         </div>
     );
 }
