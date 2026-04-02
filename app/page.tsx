@@ -106,7 +106,7 @@ export default function Home() {
               onClick={createEmail}
               className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm"
             >
-              Новая почта
+              New Mail
             </button>
 
             <input
@@ -142,7 +142,7 @@ export default function Home() {
 
           {copied && (
             <div className="absolute -top-8 right-2 text-xs bg-black border border-white/10 px-2 py-1 rounded">
-              Скопировано
+              Copied
             </div>
           )}
         </div>
@@ -151,7 +151,7 @@ export default function Home() {
           <div className="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-xl h-[420px] overflow-y-auto">
 
             {messages.length === 0 && (
-              <p className="text-gray-500 text-sm">Нет писем</p>
+              <p className="text-gray-500 text-sm">No letters</p>
             )}
 
             {messages.map((msg) => {
@@ -183,7 +183,7 @@ ${active
 
           <div className="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xl h-[420px] overflow-y-auto">
             {!selectedMessage ? (
-              <p style={{ color: "#666" }}>Выбери письмо</p>
+              <p style={{ color: "#666" }}>Select a letter</p>
             ) : (
               <>
                 <h3>{selectedMessage.subject || "(без темы)"}</h3>
@@ -215,18 +215,17 @@ ${active
       </div>
 
       {/* ================= SEO CONTENT ================= */}
-      
+
       <div className="max-w-6xl mx-auto px-6 mt-20 space-y-20 text-gray-400 text-sm">
 
         {/* HERO */}
         <section className="max-w-3xl mx-auto text-center">
           <h1 className="text-2xl md:text-4xl font-semibold text-white tracking-tight">
-            Временная почта без регистрации
+            Temporary email without registration
           </h1>
           <p className="leading-relaxed text-gray-400">
-            TempMail.Site — это сервис одноразовой электронной почты, позволяющий получать
-            письма без создания аккаунта. Используйте временный email для регистрации,
-            получения кодов подтверждения и защиты основной почты от спама.
+            TempMail.Site is a disposable email service that lets you receive emails without creating an account.
+            Use a temporary email address to register, receive confirmation codes, and protect your primary email from spam.
           </p>
         </section>
 
@@ -235,28 +234,28 @@ ${active
 
           <div className="p-6 rounded-xl border border-white/10 bg-white/5">
             <h3 className="text-white font-medium mb-2">
-              Мгновенное получение писем
+              Instant receipt of letters
             </h3>
             <p className="leading-relaxed">
-              Все входящие сообщения отображаются в реальном времени без необходимости обновления страницы.
+              All incoming messages are displayed in real time without the need to refresh the page.
             </p>
           </div>
 
           <div className="p-6 rounded-xl border border-white/10 bg-white/5">
             <h3 className="text-white font-medium mb-2">
-              Полная анонимность
+              Complete anonymity
             </h3>
             <p className="leading-relaxed">
-              Использование сервиса не требует регистрации и ввода персональных данных.
+              Using the service does not require registration or entering personal data.
             </p>
           </div>
 
           <div className="p-6 rounded-xl border border-white/10 bg-white/5">
             <h3 className="text-white font-medium mb-2">
-              Защита от спама
+              Spam protection
             </h3>
             <p className="leading-relaxed">
-              Временный email позволяет избежать нежелательных писем на основной почтовый ящик.
+              A temporary email allows you to avoid unwanted emails sent to your main inbox.
             </p>
           </div>
 
@@ -265,38 +264,38 @@ ${active
         {/* HOW IT WORKS */}
         <section className="space-y-6">
           <h2 className="text-2xl text-white font-semibold">
-            Как работает временная почта
+            How does temporary mail work?
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">
 
             <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Шаг 1</div>
+              <div className="text-gray-500 text-xs mb-2">Step 1</div>
               <h4 className="text-white mb-2 font-medium">
-                Создание адреса
+                Creating an address
               </h4>
               <p>
-                Сервис автоматически генерирует временный email адрес при нажатии кнопки.
+                The service automatically generates a temporary email address when you click the button.
               </p>
             </div>
 
             <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Шаг 2</div>
+              <div className="text-gray-500 text-xs mb-2">Step 2</div>
               <h4 className="text-white mb-2 font-medium">
-                Использование email
+                Using email
               </h4>
               <p>
-                Используйте адрес для регистрации на сайтах или получения кодов подтверждения.
+                Use the address to register on websites or receive confirmation codes.
               </p>
             </div>
 
             <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Шаг 3</div>
+              <div className="text-gray-500 text-xs mb-2">Step 3</div>
               <h4 className="text-white mb-2 font-medium">
-                Получение писем
+                Receiving letters
               </h4>
               <p>
-                Все входящие сообщения отображаются на странице сразу после получения.
+                All incoming messages are displayed on the page immediately after receipt.
               </p>
             </div>
 
@@ -306,44 +305,44 @@ ${active
         {/* USE CASES */}
         <section className="space-y-6">
           <h2 className="text-2xl text-white font-semibold">
-            Применение временной почты
+            Using temporary mail
           </h2>
 
           <div className="grid md:grid-cols-2 gap-6">
 
             <div className="p-6 rounded-xl border border-white/10">
               <h3 className="text-white mb-2 font-medium">
-                Регистрация на веб-сайтах
+                Registration on websites
               </h3>
               <p>
-                Используйте временный email для создания аккаунтов без риска получения рекламных рассылок.
+                Use a temporary email to create accounts without the risk of receiving marketing emails.
               </p>
             </div>
 
             <div className="p-6 rounded-xl border border-white/10">
               <h3 className="text-white mb-2 font-medium">
-                Получение кодов подтверждения
+                Receiving confirmation codes
               </h3>
               <p>
-                Быстро получайте email-коды для входа и регистрации в сервисах.
+                Quickly receive email codes to log in and register for services.
               </p>
             </div>
 
             <div className="p-6 rounded-xl border border-white/10">
               <h3 className="text-white mb-2 font-medium">
-                Тестирование приложений
+                Application testing
               </h3>
               <p>
-                Удобный инструмент для разработчиков при тестировании регистраций и email-уведомлений.
+                A convenient tool for developers when testing registrations and email notifications.
               </p>
             </div>
 
             <div className="p-6 rounded-xl border border-white/10">
               <h3 className="text-white mb-2 font-medium">
-                Защита личных данных
+                Protection of personal data
               </h3>
               <p>
-                Скрывайте основной email при работе с незнакомыми или ненадежными сервисами.
+                Hide your primary email when using unfamiliar or untrusted services.
               </p>
             </div>
 
@@ -353,33 +352,33 @@ ${active
         {/* FAQ */}
         <section className="space-y-6">
           <h2 className="text-2xl text-white font-semibold">
-            Часто задаваемые вопросы
+            Frequently Asked Questions
           </h2>
 
           <div className="space-y-3">
 
             <div className="p-5 rounded-xl border border-white/10">
               <h3 className="text-white font-medium mb-1">
-                Сервис является бесплатным?
+                Is the service free?
               </h3>
-              <p>Да, использование TempMail.Site полностью бесплатно.</p>
+              <p>Yes, using TempMail.Site is completely free.</p>
             </div>
 
             <div className="p-5 rounded-xl border border-white/10">
               <h3 className="text-white font-medium mb-1">
-                Как долго хранится почта?
+                How long is mail kept?
               </h3>
               <p>
-                Письма сохраняются временно и автоматически удаляются через определённый промежуток времени.
+                Letters are saved temporarily and automatically deleted after a certain period of time.
               </p>
             </div>
 
             <div className="p-5 rounded-xl border border-white/10">
               <h3 className="text-white font-medium mb-1">
-                Требуется ли регистрация?
+                Is registration required?
               </h3>
               <p>
-                Нет, сервис работает без создания аккаунта и ввода личных данных.
+                No, the service works without creating an account or entering personal information.
               </p>
             </div>
 
@@ -398,19 +397,19 @@ ${active
               TempMail.Site
             </h3>
             <p className="leading-relaxed max-w-md">
-              TempMail.Site — это сервис временной почты для регистрации на сайтах,
-              получения кодов подтверждения и защиты вашей основной почты от спама.
+              TempMail.Site is a temporary email service for registering on websites, receiving confirmation codes,
+              and protecting your primary email from spam.
             </p>
           </div>
 
           {/* RIGHT */}
           <div className="space-y-3 md:pl-10 border-t md:border-t-0 md:border-l border-white/10 pt-6 md:pt-0">
             <h3 className="text-white text-lg font-semibold">
-              Как работает
+              How it works?
             </h3>
             <p className="leading-relaxed max-w-md">
-              Нажмите "Новая почта", используйте созданный email и получайте письма
-              мгновенно. Все сообщения автоматически удаляются через некоторое время.
+              Click "New Mail," use the email you created, and receive emails instantly.
+              All messages are automatically deleted after a short period of time.
             </p>
           </div>
 
@@ -418,7 +417,7 @@ ${active
 
         {/* BOTTOM */}
         <div className="text-center mt-12 text-gray-500 text-xs">
-          © {new Date().getFullYear()} TempMail.Site. Create by AVKAD
+          © 2026 TempMail.Site Create by AVKAD
         </div>
 
       </footer>

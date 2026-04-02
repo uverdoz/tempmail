@@ -7,44 +7,43 @@ export default function Terms() {
             </h1>
 
             <p className="mb-6 leading-relaxed">
-                Используя TempMail.Site, вы соглашаетесь с настоящими условиями использования.
+                By using TempMail.Site, you agree to these terms of use.
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">1. Описание сервиса</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">1. Service Description</h2>
             <p className="mb-6">
-                TempMail.Site предоставляет временные email-адреса для получения сообщений
-                без регистрации.
+                TempMail.Site provides temporary email addresses for receiving messages without registration.
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">2. Использование</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">2. Usage</h2>
             <p className="mb-6">
-                Пользователь обязуется использовать сервис только в законных целях.
+                The user undertakes to use the service only for lawful purposes.
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">3. Ограничения</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">3. Restrictions</h2>
             <p className="mb-6">
-                Запрещено использовать сервис для:
+                It is prohibited to use the service for:
                 <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li>мошенничества</li>
-                    <li>спама</li>
-                    <li>незаконной деятельности</li>
+                    <li>fraud</li>
+                    <li>spam</li>
+                    <li>illegal activities</li>
                 </ul>
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">4. Доступность</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">4. Availability</h2>
             <p className="mb-6">
-                Мы не гарантируем бесперебойную работу сервиса.
+                We do not guarantee uninterrupted operation of the service.
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">5. Ответственность</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">5. Responsibility</h2>
             <p className="mb-6">
-                Мы не несём ответственности за содержимое полученных писем.
+                We are not responsible for the content of emails received.
             </p>
 
-            <h2 className="text-xl text-white mt-8 mb-3">6. Изменения</h2>
+            <h2 className="text-xl text-white mt-8 mb-3">6. Changes</h2>
             <p>
-                Условия могут быть изменены без предварительного уведомления.
-            </p>
+                Terms and conditions are subject to change without prior notice.            
+                </p>
 
         </div>
     );
