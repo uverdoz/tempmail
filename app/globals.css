@@ -57,6 +57,23 @@ body {
   transition: all 0.25s ease;
 }
 
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease forwards;
+}
+
 .button:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(255, 255, 255, 0.15);

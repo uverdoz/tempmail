@@ -73,6 +73,19 @@ export default function RootLayout({
           <a href="/about">About</a>
         </footer>
         <Analytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "TempFastMail",
+              url: "https://tempfastmail.site",
+              description:
+                "Free temporary email service for receiving disposable emails instantly without registration.",
+            }),
+          }}
+        />
       </body>
     </html>
   );

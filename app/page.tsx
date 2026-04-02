@@ -214,178 +214,192 @@ ${active
         </div>
       </div>
 
-      {/* ================= SEO CONTENT ================= */}
+{/* ================= SEO CONTENT ================= */}
 
-      <div className="max-w-6xl mx-auto px-6 mt-20 space-y-20 text-gray-400 text-sm">
+<div className="max-w-6xl mx-auto px-6 mt-20 space-y-20 text-gray-400 text-sm">
 
-        {/* HERO */}
-        <section className="max-w-3xl mx-auto text-center">
-          <h1 className="text-2xl md:text-4xl font-semibold text-white tracking-tight">
-            Temporary email without registration
-          </h1>
-          <p className="leading-relaxed text-gray-400">
-            TempMail.Site is a disposable email service that lets you receive emails without creating an account.
-            Use a temporary email address to register, receive confirmation codes, and protect your primary email from spam.
-          </p>
-        </section>
+  {/* HERO */}
+  <section className="max-w-3xl mx-auto text-center space-y-4">
+    <h1 className="text-2xl md:text-4xl font-semibold text-white tracking-tight">
+      Free Temporary Email – Disposable Email Service
+    </h1>
+    <p className="leading-relaxed">
+      TempMail.Site provides a free temporary email address you can use instantly without registration. 
+      Receive verification emails, confirmation codes, and protect your real inbox from spam and unwanted messages.
+    </p>
+  </section>
 
-        {/* FEATURES */}
-        <section className="grid md:grid-cols-3 gap-6">
+  {/* FEATURES */}
+  <section className="grid md:grid-cols-3 gap-6">
 
-          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
-            <h3 className="text-white font-medium mb-2">
-              Instant receipt of letters
-            </h3>
-            <p className="leading-relaxed">
-              All incoming messages are displayed in real time without the need to refresh the page.
-            </p>
-          </div>
+    <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+      <h3 className="text-white font-medium mb-2">
+        Instant Email Access
+      </h3>
+      <p className="leading-relaxed">
+        Generate a disposable email address instantly and start receiving messages in real time without refreshing the page.
+      </p>
+    </div>
 
-          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
-            <h3 className="text-white font-medium mb-2">
-              Complete anonymity
-            </h3>
-            <p className="leading-relaxed">
-              Using the service does not require registration or entering personal data.
-            </p>
-          </div>
+    <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+      <h3 className="text-white font-medium mb-2">
+        Anonymous & Secure
+      </h3>
+      <p className="leading-relaxed">
+        No signup required. Use temporary email without sharing personal data or exposing your identity.
+      </p>
+    </div>
 
-          <div className="p-6 rounded-xl border border-white/10 bg-white/5">
-            <h3 className="text-white font-medium mb-2">
-              Spam protection
-            </h3>
-            <p className="leading-relaxed">
-              A temporary email allows you to avoid unwanted emails sent to your main inbox.
-            </p>
-          </div>
+    <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+      <h3 className="text-white font-medium mb-2">
+        Spam Protection
+      </h3>
+      <p className="leading-relaxed">
+        Keep your primary inbox clean by using a temp mail address for registrations and online services.
+      </p>
+    </div>
 
-        </section>
+  </section>
 
-        {/* HOW IT WORKS */}
-        <section className="space-y-6">
-          <h2 className="text-2xl text-white font-semibold">
-            How does temporary mail work?
-          </h2>
+  {/* HOW IT WORKS */}
+  <section className="space-y-6">
+    <h2 className="text-2xl text-white font-semibold">
+      How Temporary Email Works
+    </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
+    <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Step 1</div>
-              <h4 className="text-white mb-2 font-medium">
-                Creating an address
-              </h4>
-              <p>
-                The service automatically generates a temporary email address when you click the button.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Step 2</div>
-              <h4 className="text-white mb-2 font-medium">
-                Using email
-              </h4>
-              <p>
-                Use the address to register on websites or receive confirmation codes.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <div className="text-gray-500 text-xs mb-2">Step 3</div>
-              <h4 className="text-white mb-2 font-medium">
-                Receiving letters
-              </h4>
-              <p>
-                All incoming messages are displayed on the page immediately after receipt.
-              </p>
-            </div>
-
-          </div>
-        </section>
-
-        {/* USE CASES */}
-        <section className="space-y-6">
-          <h2 className="text-2xl text-white font-semibold">
-            Using temporary mail
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <h3 className="text-white mb-2 font-medium">
-                Registration on websites
-              </h3>
-              <p>
-                Use a temporary email to create accounts without the risk of receiving marketing emails.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <h3 className="text-white mb-2 font-medium">
-                Receiving confirmation codes
-              </h3>
-              <p>
-                Quickly receive email codes to log in and register for services.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <h3 className="text-white mb-2 font-medium">
-                Application testing
-              </h3>
-              <p>
-                A convenient tool for developers when testing registrations and email notifications.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl border border-white/10">
-              <h3 className="text-white mb-2 font-medium">
-                Protection of personal data
-              </h3>
-              <p>
-                Hide your primary email when using unfamiliar or untrusted services.
-              </p>
-            </div>
-
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="space-y-6">
-          <h2 className="text-2xl text-white font-semibold">
-            Frequently Asked Questions
-          </h2>
-
-          <div className="space-y-3">
-
-            <div className="p-5 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-1">
-                Is the service free?
-              </h3>
-              <p>Yes, using TempMail.Site is completely free.</p>
-            </div>
-
-            <div className="p-5 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-1">
-                How long is mail kept?
-              </h3>
-              <p>
-                Letters are saved temporarily and automatically deleted after a certain period of time.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-xl border border-white/10">
-              <h3 className="text-white font-medium mb-1">
-                Is registration required?
-              </h3>
-              <p>
-                No, the service works without creating an account or entering personal information.
-              </p>
-            </div>
-
-          </div>
-        </section>
-
+      <div className="p-6 rounded-xl border border-white/10">
+        <div className="text-gray-500 text-xs mb-2">Step 1</div>
+        <h4 className="text-white mb-2 font-medium">
+          Generate Email
+        </h4>
+        <p>
+          A random disposable email address is created automatically when you open the service.
+        </p>
       </div>
+
+      <div className="p-6 rounded-xl border border-white/10">
+        <div className="text-gray-500 text-xs mb-2">Step 2</div>
+        <h4 className="text-white mb-2 font-medium">
+          Use It Anywhere
+        </h4>
+        <p>
+          Use the temporary email for sign-ups, verification, or accessing online services.
+        </p>
+      </div>
+
+      <div className="p-6 rounded-xl border border-white/10">
+        <div className="text-gray-500 text-xs mb-2">Step 3</div>
+        <h4 className="text-white mb-2 font-medium">
+          Receive Emails
+        </h4>
+        <p>
+          Messages appear instantly in your inbox and are automatically deleted after some time.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  {/* FAQ */}
+  <section className="space-y-6">
+    <h2 className="text-2xl text-white font-semibold">
+      Temporary Email FAQ
+    </h2>
+
+    <div className="space-y-3">
+
+      <div className="p-5 rounded-xl border border-white/10">
+        <h3 className="text-white font-medium mb-1">
+          Is this temporary email service free?
+        </h3>
+        <p>
+          Yes, TempMail.Site is completely free to use with no hidden fees.
+        </p>
+      </div>
+
+      <div className="p-5 rounded-xl border border-white/10">
+        <h3 className="text-white font-medium mb-1">
+          How long are emails stored?
+        </h3>
+        <p>
+          Emails are stored temporarily and automatically deleted after a short period to ensure privacy.
+        </p>
+      </div>
+
+      <div className="p-5 rounded-xl border border-white/10">
+        <h3 className="text-white font-medium mb-1">
+          Do I need to register?
+        </h3>
+        <p>
+          No registration is required. You can use the disposable email instantly.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+{/* ================= EXTRA SEO BLOCK ================= */}
+
+<section className="mt-28 px-6">
+
+  <div className="max-w-5xl mx-auto space-y-16">
+
+    {/* HEADER */}
+    <div className="text-center">
+      <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
+        What is a Disposable Email Address?
+      </h2>
+      <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        A disposable email (temp mail) is a temporary inbox that allows you to receive emails without using your personal address. 
+        It is commonly used for registrations, testing, and avoiding spam.
+      </p>
+    </div>
+
+    {/* BENEFITS */}
+    <div className="grid md:grid-cols-3 gap-6">
+
+      <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+        <h3 className="text-white font-medium mb-2">Privacy Protection</h3>
+        <p className="text-gray-400 text-sm">
+          Hide your real email and avoid data leaks or unwanted tracking.
+        </p>
+      </div>
+
+      <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+        <h3 className="text-white font-medium mb-2">Fast & Easy</h3>
+        <p className="text-gray-400 text-sm">
+          Create and use a temporary email instantly without any setup.
+        </p>
+      </div>
+
+      <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+        <h3 className="text-white font-medium mb-2">Spam-Free Inbox</h3>
+        <p className="text-gray-400 text-sm">
+          Keep your main email clean by using disposable addresses.
+        </p>
+      </div>
+
+    </div>
+
+    {/* SAFETY */}
+    <div className="max-w-2xl">
+      <h2 className="text-2xl text-white font-semibold mb-4">
+        Is Temporary Email Safe?
+      </h2>
+      <p className="text-gray-400 leading-relaxed">
+        Temporary email services are safe for general use such as registrations and testing. 
+        However, avoid using them for sensitive or personal data since inboxes may not be private.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
       {/* ================= FOOTER ================= */}
       <footer className="mt-20 border-t border-white/10 pt-12 pb-8 text-sm text-gray-400">
 
@@ -424,6 +438,7 @@ ${active
     </div>
   );
 }
+
 
 // ================= STYLES =================
 const wrapper: React.CSSProperties = {
