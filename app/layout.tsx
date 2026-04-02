@@ -1,4 +1,5 @@
-import "./globals.css"; // ← ВАЖНО
+import "./globals.css";
+import { Analytics } from "@vercel/analytics/react";
 
 export default function RootLayout({
   children,
@@ -6,10 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ru">
-      <body className="bg-black text-white">
-        
+    <html lang="en">
+      <body>
         {children}
+        <Analytics />
       </body>
     </html>
   );
