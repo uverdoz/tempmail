@@ -6,124 +6,41 @@ export default function Home() {
 
   // ================= STATE =================
   const [email, setEmail] = useState<string>("");
-  const [token, setToken] = useState<string>("");
   const [messages, setMessages] = useState<any[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [spinning, setSpinning] = useState(false);
-  const [domains, setDomains] = useState<string[]>([]);
-  const [selectedDomain, setSelectedDomain] = useState<string>("");
-  const [service, setService] = useState<"mailtm" | "1secmail" | "custom">("mailtm");
 
   // ================= CREATE EMAIL =================
   const createEmail = async () => {
-    try {
-      if (service === "mailtm") {
-        const domainRes = await fetch("https://api.mail.tm/domains");
-        const domainData = await domainRes.json();
-        const domain = selectedDomain || domainData["hydra:member"][0].domain;
-        const address = `${Math.random().toString(36).substring(2, 10)}@${domain}`;
-        const password = "12345678";
+    const domains = [
+      "mail.tempfastmail.site",
+      "mail.tempy.app",
+      "mail.tempdrop.io"
+    ];
 
-        await fetch("https://api.mail.tm/accounts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, password }),
-        });
+    const domain = domains[Math.floor(Math.random() * domains.length)];
+    const login = Math.random().toString(36).substring(2, 10);
 
-        const tokenRes = await fetch("https://api.mail.tm/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ address, password }),
-        });
+    const address = `${login}@${domain}`;
 
-        const tokenData = await tokenRes.json();
-
-        setEmail(address);
-        setToken(tokenData.token);
-      }
-
-      if (service === "1secmail") {
-        const login = Math.random().toString(36).substring(2, 10);
-        const domain = selectedDomain || "1secmail.com";
-        setEmail(`${login}@${domain}`);
-        setToken("");
-      }
-
-      if (service === "custom") {
-        const login = Math.random().toString(36).substring(2, 10);
-        const domain = "mail.tempfastmail.site";
-        setEmail(`${login}@${domain}`);
-      }
-
-      setMessages([]);
-      setSelectedMessage(null);
-    } catch {
-      console.log("create email error");
-    }
+    setEmail(address);
+    setMessages([]);
+    setSelectedMessage(null);
   };
 
   // ================= LOAD DOMAINS =================
-  const loadDomains = async () => {
-    try {
-      if (service === "mailtm") {
-        const res = await fetch("https://api.mail.tm/domains");
-        const data = await res.json();
-        const list = data["hydra:member"].map((d: any) => d.domain);
-        setDomains(list);
-        setSelectedDomain(list[0]);
-      }
-
-      if (service === "1secmail") {
-        const list = ["1secmail.com", "1secmail.net", "1secmail.org"];
-        setDomains(list);
-        setSelectedDomain(list[0]);
-      }
-
-      if (service === "custom") {
-        const list = ["mail.tempfastmail.site"];
-        setDomains(list);
-        setSelectedDomain(list[0]);
-      }
-    } catch {
-      console.log("domains error");
-    }
-  };
 
   // ================= GET MESSAGES =================
   const getMessages = async () => {
     if (!email) return;
 
     try {
-      if (service === "mailtm") {
-        if (!token) return;
-        const res = await fetch("https://api.mail.tm/messages", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setMessages(data["hydra:member"] || []);
-        return;
-      }
+      const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
+      if (!res.ok) return;
 
-      if (service === "1secmail") {
-        const [login, domain] = email.split("@");
-        const res = await fetch(
-          `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`
-        );
-        const data = await res.json();
-        setMessages(data || []);
-        return;
-      }
-
-      if (service === "custom") {
-        const res = await fetch(`/api/mailgun-webhook?email=${encodeURIComponent(email)}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        if (data.length !== messages.length) {
-          console.log(`[Frontend] Получено ${data.length} писем для ${email}`);
-        }
-        setMessages(data || []);
-      }
+      const data = await res.json();
+      setMessages(data || []);
     } catch (e) {
       console.log("get messages error", e);
     }
@@ -131,49 +48,18 @@ export default function Home() {
 
   // ================= OPEN MESSAGE =================
   const openMessage = async (id: any) => {
-    try {
-      if (service === "mailtm") {
-        if (!token) return;
-        const res = await fetch(`https://api.mail.tm/messages/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setSelectedMessage(data);
-        return;
-      }
-
-      if (service === "1secmail") {
-        const [login, domain] = email.split("@");
-        const res = await fetch(
-          `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`
-        );
-        const data = await res.json();
-        setSelectedMessage(data);
-        return;
-      }
-
-      if (service === "custom") {
-        const msg = messages.find((m) => m.id === id);
-        setSelectedMessage(msg);
-      }
-    } catch (e) {
-      console.log("open message error", e);
-    }
+    const msg = messages.find((m) => m.id === id);
+    setSelectedMessage(msg);
   };
 
   // ================= AUTO =================
   useEffect(() => {
-    loadDomains();
-  }, [service]);
-
-  useEffect(() => {
-    if (service === "mailtm" && !token) return;
     if (!email) return;
 
     getMessages();
     const interval = setInterval(getMessages, 5000);
     return () => clearInterval(interval);
-  }, [token, email, service]);
+  }, [email]);
 
   // ================= UI =================
   return (
@@ -231,26 +117,6 @@ export default function Home() {
               className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-500"
             />
 
-            <select
-              value={service}
-              onChange={(e) => setService(e.target.value as any)}
-              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
-            >
-              <option value="mailtm">mail.tm</option>
-              <option value="1secmail">1secmail</option>
-              <option value="custom">TempFastMail</option>
-            </select>
-
-            <select
-              value={selectedDomain}
-              onChange={(e) => setSelectedDomain(e.target.value)}
-              className="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm"
-            >
-              {domains.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-
             <button
               onClick={() => {
                 navigator.clipboard.writeText(email);
@@ -290,8 +156,7 @@ export default function Home() {
             )}
 
             {messages.map((msg) => {
-              const active = selectedMessage?.id === msg.id;
-
+              const active = selectedMessage && selectedMessage.id === msg.id;
               return (
                 <div
                   key={msg.id}
@@ -340,6 +205,7 @@ ${active
                   dangerouslySetInnerHTML={{
                     __html: (selectedMessage.html || selectedMessage.text || "Пусто")
                       .replace(/http:\/\//gi, "https://")
+                      .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, "")
                   }}
                 />
               </>
@@ -357,121 +223,4 @@ const wrapper: React.CSSProperties = {
   background: "#050505",
   color: "white",
   fontFamily: "Arial"
-};
-
-const container: React.CSSProperties = {
-  width: "100%",
-  maxWidth: 1000,
-  margin: "40px auto",
-  padding: "0 20px"
-};
-
-const logo: React.CSSProperties = {
-  fontSize: 45,
-  fontWeight: 700,
-  textAlign: "center",
-  marginBottom: 30,
-  background: "linear-gradient(90deg, #fff, #aaa)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-};
-
-const emailBlock: React.CSSProperties = {
-  background: "#0d0d0d",
-  border: "1px solid #222",
-  borderRadius: 16,
-  padding: 20,
-  marginBottom: 25,
-  position: "relative"
-};
-
-const row: React.CSSProperties = {
-  display: "flex",
-  gap: 12,
-  alignItems: "center"
-};
-
-const emailStyle: React.CSSProperties = {
-  flex: 1,
-  background: "#111",
-  padding: "14px 16px",
-  borderRadius: 12,
-  border: "1px solid #222"
-};
-
-const newMailBtn: React.CSSProperties = {
-  padding: "10px 14px",
-  borderRadius: 10,
-  border: "1px solid #333",
-  background: "#151515",
-  color: "white",
-  cursor: "pointer",
-};
-
-const iconBtn: React.CSSProperties = {
-  width: 45,
-  height: 45,
-  borderRadius: 12,
-  border: "1px solid #333",
-  background: "#111",
-  color: "white",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  cursor: "pointer",
-};
-
-const subject: React.CSSProperties = {
-  fontSize: 13,
-  color: "#aaa",
-  marginTop: 5
-};
-
-const toast: React.CSSProperties = {
-  position: "absolute",
-  top: -30,
-  right: 20,
-  background: "#111",
-  border: "1px solid #333",
-  padding: "6px 10px",
-  borderRadius: 8,
-  fontSize: 12
-};
-
-const grid: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "1fr 2fr",
-  gap: 20
-};
-
-const list: React.CSSProperties = {
-  background: "#0d0d0d",
-  border: "1px solid #222",
-  borderRadius: 16,
-  padding: 15,
-  height: 400,
-  overflowY: "auto",
-};
-
-const messageBox: React.CSSProperties = {
-  background: "#0d0d0d",
-  border: "1px solid #222",
-  borderRadius: 16,
-  padding: 20,
-  height: 400,
-  overflowY: "auto",
-};
-
-const hoverMove = (e: any) => {
-  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.2)";
-  e.currentTarget.style.transform = "translateY(-2px)";
-};
-
-const hoverGlow = (e: any) => {
-  e.currentTarget.style.boxShadow = "0 0 12px rgba(255,255,255,0.25)";
-};
-
-const hoverReset = (e: any) => {
-  e.currentTarget.style.boxShadow = "none";
-  e.currentTarget.style.transform = "translateY(0)";
 };
