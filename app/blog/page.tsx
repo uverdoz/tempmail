@@ -39,16 +39,6 @@ export default function BlogPage() {
                 </a>
 
             </div>
-
-            <div className="mt-12 p-6 rounded-xl border border-white/10 bg-white/5">
-                <h3 className="text-white mb-2 font-medium">
-                    Read more
-                </h3>
-                <a href="/blog/temporary-email" className="text-blue-400 hover:underline">
-                    What is Temporary Email →
-                </a>
-            </div>
-
         </div>
     );
 }

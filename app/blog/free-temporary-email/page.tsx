@@ -94,6 +94,7 @@ export default function FreeTemporaryEmailPage() {
                 </a>
             </div>
 
+
         </div>
     );
 }
