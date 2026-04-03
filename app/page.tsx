@@ -110,15 +110,14 @@ export default function Home() {
               onClick={createEmail}
               className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 transition text-sm"
             >
-              New Mail
+              Generate Email
             </button>
 
             <input
               value={email}
               readOnly
               placeholder="email появится здесь..."
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder-gray-500"
-            />
+              className="flex-1 bg-white/5 border border-white/15 rounded-lg px-3 py-1.5 outline-none text-base text-white placeholder-gray-500 font-medium" />
 
             <button
               onClick={() => {
@@ -155,7 +154,9 @@ export default function Home() {
           <div className="col-span-1 bg-white/5 border border-white/10 rounded-2xl p-3 backdrop-blur-xl h-[420px] overflow-y-auto">
 
             {messages.length === 0 && (
-              <p className="text-gray-500 text-sm">No letters</p>
+              <p className="text-gray-500 text-sm">
+                No emails yet. Waiting for incoming messages...
+              </p>
             )}
 
             {messages.map((msg) => {
@@ -187,7 +188,9 @@ ${active
 
           <div className="col-span-2 bg-white/5 border border-white/10 rounded-2xl p-5 backdrop-blur-xl h-[420px] overflow-y-auto">
             {!selectedMessage ? (
-              <p style={{ color: "#666" }}>Select a letter</p>
+              <p style={{ color: "#666" }}>
+                Select an email to view its content
+              </p>
             ) : (
               <>
                 <h3>{selectedMessage.subject || "(без темы)"}</h3>
