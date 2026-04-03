@@ -80,6 +80,10 @@ export default function Home() {
               EN
             </button>
 
+            <Link href="/blog" className="text-gray-400 hover:text-white transition duration-200">
+              Blog
+            </Link>
+
             <Link href="/privacy" className="text-gray-400 hover:text-white transition duration-200">
               Privacy
             </Link>
